@@ -1,0 +1,31 @@
+{
+    "[cpp]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.clangTidy": "explicit"
+        }
+    },
+    "[c]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.clangTidy": "explicit"
+        }
+    },
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/build",
+        "--header-insertion=iwyu",
+        "--clang-tidy"
+    ],
+    "clangd.onConfigChanged": "restart",
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "C_Cpp.clangFormatOnSave": false,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/build": false,
+        "**/.ninja*": true,
+        "**/*.o": true
+    }
+}

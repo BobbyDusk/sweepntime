@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+{
+      "name": "Debug with LLDB (Wrapped)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/nestled",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "preLaunchTask": "build-asan",
+      "sourceLanguages": ["c"],
+      "envFile": "${workspaceFolder}/.nixgl.env",
+      "postDebugTask": "clean-nixgl-env"
+    },
+    {
+      "name": "Attach to Process",
+      "type": "lldb",
+      "request": "attach",
+      "pid": "${command:pickProcess}"
+    }
+  ]
+}

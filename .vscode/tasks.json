@@ -1,0 +1,113 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "generate-nixgl-env",
+      "type": "shell",
+      "command": "if command -v nixGL >/dev/null 2>&1; then echo \"LD_LIBRARY_PATH=$(nixGL printenv LD_LIBRARY_PATH)\" > ${workspaceFolder}/.nixgl.env; else echo \"\" > ${workspaceFolder}/.nixgl.env; fi",
+      "problemMatcher": []
+    },
+    {
+      "label": "clean-nixgl-env",
+      "type": "shell",
+      "command": "rm -f ${workspaceFolder}/.nixgl.env",
+      "problemMatcher": []
+    },
+    {
+      "label": "build-debug",
+      "type": "shell",
+      "command": "just",
+      "args": ["build-debug"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Build with debug symbols"
+    },
+    {
+      "label": "build-asan",
+      "type": "shell",
+      "command": "just",
+      "args": ["build-asan"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": "generate-nixgl-env",
+      "problemMatcher": ["$gcc"],
+      "detail": "Build with debug symbols and AddressSanitizer enabled"
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "just",
+      "args": ["build"],
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Quick recompile"
+    },
+    {
+      "label": "build-release",
+      "type": "shell",
+      "command": "just",
+      "args": ["build-release"],
+      "problemMatcher": ["$gcc"],
+      "detail": "Build optimized release"
+    },
+    {
+      "label": "clean",
+      "type": "shell",
+      "command": "just",
+      "args": ["clean"],
+      "detail": "Remove build directory"
+    },
+    {
+      "label": "rebuild",
+      "type": "shell",
+      "command": "just",
+      "args": ["rebuild"],
+      "problemMatcher": ["$gcc"],
+      "detail": "Clean and build debug"
+    },
+    {
+      "label": "fmt",
+      "type": "shell",
+      "command": "just",
+      "args": ["fmt"],
+      "detail": "Format code with clang-format"
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "just",
+      "args": ["lint"],
+      "problemMatcher": ["$gcc"],
+      "detail": "Run clang-tidy linter"
+    },
+    {
+      "label": "lint-fix",
+      "type": "shell",
+      "command": "just",
+      "args": ["lint-fix"],
+      "problemMatcher": ["$gcc"],
+      "detail": "Run clang-tidy with auto-fixes"
+    },
+    {
+      "label": "debug",
+      "type": "shell",
+      "command": "just",
+      "args": ["debug"],
+      "detail": "Build and debug with LLDB"
+    },
+    {
+      "label": "run",
+      "type": "shell",
+      "command": "just",
+      "args": ["run"],
+      "detail": "Build and run executable"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+# Build directories
+build/
+dist/
+*.o
+*.a
+*.so
+*.dylib
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+
+# Compile commands
+compile_commands.json
+
+# IDE
+.clangd/
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ninja
+.ninja_*
+
+# nix
+.direnv/
+.nixgl.env
