@@ -5,7 +5,7 @@
       "name": "Debug with LLDB (Wrapped)",
       "type": "lldb",
       "request": "launch",
-      "program": "${workspaceFolder}/build/nestled",
+      "program": "${workspaceFolder}/build/sweepntime",
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "preLaunchTask": "build-asan",

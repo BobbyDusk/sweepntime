@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(Nestled C)
+project(SweepnTime C)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -19,11 +19,11 @@ option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.c")
 
 # Your targets
-add_executable(nestled ${SOURCES})
+add_executable(sweepntime ${SOURCES})
 
 # 2. Link your executable against SDL3
 # This automatically handles include paths and linking flags
-target_link_libraries(nestled PRIVATE 
+target_link_libraries(sweepntime PRIVATE 
     SDL3::SDL3 
     SDL3_image::SDL3_image 
     SDL3_mixer::SDL3_mixer 
@@ -31,13 +31,13 @@ target_link_libraries(nestled PRIVATE
 )
 
 # 3. Base strict warning options for your specific target
-target_compile_options(nestled PRIVATE -Wall -Werror -Wextra -Wpedantic -fcolor-diagnostics)
+target_compile_options(sweepntime PRIVATE -Wall -Werror -Wextra -Wpedantic -fcolor-diagnostics)
 
 # 4. Use lld linker for your specific target
-target_link_options(nestled PRIVATE -fuse-ld=lld)
+target_link_options(sweepntime PRIVATE -fuse-ld=lld)
 
 # 5. Enable target-specific ASan if requested
 if(ENABLE_ASAN)
-    target_compile_options(nestled PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-    target_link_options(nestled PRIVATE -fsanitize=address)
+    target_compile_options(sweepntime PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    target_link_options(sweepntime PRIVATE -fsanitize=address)
 endif()

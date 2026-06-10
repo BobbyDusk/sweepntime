@@ -1,5 +1,5 @@
 {
-  description = "Development environment for nestled. A C/C++ environment using the clang toolchain.";
+  description = "Development environment for Sweep'n Time. A C/C++ environment using the clang toolchain.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/release-26.05";   
@@ -15,7 +15,7 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          name = "cnestled-dev-shell";
+          name = "sweepntime-dev-shell";
           buildInputs = with pkgs; [
             # Clang toolchain
             clang # compiler
@@ -56,7 +56,7 @@
           shellHook = ''
             export CC=clang
             export CXX=clang++
-            echo "Environment loaded. Run your app using: nixGL ./build/nestled"
+            echo "Environment loaded. Run your app using: nixGL ./build/sweepntime"
           '';
         };
       }

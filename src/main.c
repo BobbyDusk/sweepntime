@@ -15,14 +15,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   (void)argc;
   (void)argv;
 
-  SDL_SetAppMetadata("Nestled", "0.1", "com.edgeofdusk.nestled");
+  SDL_SetAppMetadata("Sweep'n Time", "0.1", "com.edgeofdusk.sweepntime");
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
-  if (!SDL_CreateWindowAndRenderer("Nestled", 1920, 1080, SDL_WINDOW_RESIZABLE, &window,
+  if (!SDL_CreateWindowAndRenderer("Sweep'n Time", 1920, 1080, SDL_WINDOW_RESIZABLE, &window,
                                    &renderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;

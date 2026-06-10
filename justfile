@@ -53,19 +53,19 @@ commands:
 
 # Run the compiled executable
 run: build
-    nixGL ./build/nestled
+    nixGL ./build/sweepntime
 
 # Run with AddressSanitizer enabled build
 run-asan: build-asan
-    nixGL ./build/nestled
+    nixGL ./build/sweepntime
 
 # Run with arguments
 run-args *ARGS: build
-    nixGL ./build/nestled {{ARGS}}
+    nixGL ./build/sweepntime {{ARGS}}
 
 # Debug with lldb
 debug: build-debug
-    nixGL lldb ./build/nestled
+    nixGL lldb ./build/sweepntime
 
 # Set up dev environment (first time setup)
 setup:
