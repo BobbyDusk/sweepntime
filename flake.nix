@@ -15,8 +15,9 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          name = "sweepntime-dev-shell";
-          buildInputs = with pkgs; [
+          name = "cnestled-dev-shell";
+          # 1. TOOLS: Executables that run during the build process
+          nativeBuildInputs = with pkgs; [
             # Clang toolchain
             clang # compiler
             llvm 
@@ -26,11 +27,6 @@
             cmake # build system
             ninja # build system
 
-            # Debugging tools & profiling
-            lldb # debugger
-            valgrind # memory profiler
-            gperftools # CPU profiler
-
             # Additional tools
             pkg-config # for finding libraries
             clang-tools # clang-tidy, clang-format, clangd, etc.
@@ -38,6 +34,19 @@
                         # clang-tidy is a linter and static analysis tool that helps identify potential issues in C/C++ code.
                         # clang-format is a code formatter that enforces consistent coding style.
             ccache # compiler cache
+
+            # Additional
+            act # for running GitHub Actions locally
+            just # a command runner
+          ];
+
+          # 2. LIBRARIES: Code targets that your program links against
+          buildInputs = with pkgs; [
+            # Debugging tools & profiling
+            lldb # debugger
+            valgrind # memory profiler
+            gperftools # CPU profiler
+
 
             # Libraries
             sdl3 # for multimedia and game development
@@ -47,16 +56,15 @@
 
             # Pull nixGL directly from its flake packages definition
             nixgl.packages.${system}.default
-
-            # Additional
-            act # for running GitHub Actions locally
-            just # a command runner
           ];
 
           shellHook = ''
             export CC=clang
             export CXX=clang++
-            echo "Environment loaded. Run your app using: nixGL ./build/sweepntime"
+            # Explicitly expose your library paths to the runtime linker inside this shell
+            export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [ pkgs.sdl3 pkgs.sdl3-image pkgs.sdl3-mixer pkgs.sdl3-ttf ]}:$LD_LIBRARY_PATH"
+            export CMAKE_PREFIX_PATH="$NIXPKGS_CMAKE_PREFIX_PATH"
+            echo "Environment loaded. Run your app using: nixGL ./build/nestled"
           '';
         };
       }
