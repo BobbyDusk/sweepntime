@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
+#include <float.h>
 #include <stdio.h>
 
 const bool EXIT_ON_ESC_KEY = true;
@@ -137,11 +138,49 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   return SDL_APP_CONTINUE; /* carry on with the program! */
 }
 
-Direction check_collision(SDL_FRect *a, SDL_FRect *b) {
-  return (a->x < b->x + b->w) && (a->x + a->w > b->x) && (a->y < b->y + b->h) &&
-         (a->y + a->h > b->y);
-}
+#include <SDL3/SDL.h>
 
+Direction GetCollisionDirection(const SDL_FRect *a, const SDL_FRect *b) {
+  // 1. If they aren't even intersecting, skip the math entirely
+  if (!SDL_HasRectIntersectionFloat(a, b)) {
+    return DIR_NONE;
+  }
+
+  // 2. Calculate the center points of both rectangles
+  float center_a_x = a->x + (a->w / 2.0f);
+  float center_a_y = a->y + (a->h / 2.0f);
+  float center_b_x = b->x + (b->w / 2.0f);
+  float center_b_y = b->y + (b->h / 2.0f);
+
+  // 3. Calculate the distance between centers
+  float delta_x = center_a_x - center_b_x;
+  float delta_y = center_a_y - center_b_y;
+
+  // 4. Calculate the combined half-widths and half-heights
+  float min_dist_x = (a->w / 2.0f) + (b->w / 2.0f);
+  float min_dist_y = (a->h / 2.0f) + (b->h / 2.0f);
+
+  // 5. Calculate the exact overlap depths on both axes
+  float overlap_x = min_dist_x - SDL_fabsf(delta_x);
+  float overlap_y = min_dist_y - SDL_fabsf(delta_y);
+
+  // 6. Determine the collision axis based on the shallowest penetration
+  if (overlap_x < overlap_y) {
+    // Collision is horizontal (Left or Right)
+    if (delta_x < 0.0f) {
+      return DIR_LEFT; // A is to the left of B, so it hit B's left wall
+    } else {
+      return DIR_RIGHT; // A is to the right of B, so it hit B's right wall
+    }
+  } else {
+    // Collision is vertical (Top or Bottom)
+    if (delta_y < 0.0f) {
+      return DIR_UP; // A is above B, so it hit B's ceiling
+    } else {
+      return DIR_DOWN; // A is below B, so it hit B's floor
+    }
+  }
+}
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate) {
   AppState *state = (AppState *)appstate;
@@ -149,49 +188,36 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   Uint64 now = SDL_GetTicksNS();
   float delta_time = (now - state->last_frame_time) / 1000000000.0F;
   state->last_frame_time = now;
+  float vertical_travel = 0;
   switch (state->player_vertical_direction) {
   case DIR_UP:
-    state->player.y -= PLAYER_SPEED * delta_time;
+    vertical_travel = -PLAYER_SPEED * delta_time;
     break;
   case DIR_DOWN:
-    state->player.y += PLAYER_SPEED * delta_time;
+    vertical_travel = PLAYER_SPEED * delta_time;
     break;
   default:
     break;
   }
+  state->player.y += vertical_travel;
+
+  float horizontal_travel = 0;
   switch (state->player_horizontal_direction) {
   case DIR_LEFT:
-    state->player.x -= PLAYER_SPEED * delta_time;
+    horizontal_travel = -PLAYER_SPEED * delta_time;
     break;
   case DIR_RIGHT:
-    state->player.x += PLAYER_SPEED * delta_time;
+    horizontal_travel = PLAYER_SPEED * delta_time;
     break;
   default:
     break;
   }
+  state->player.x += horizontal_travel;
 
-  if (check_collision(&state->player, &state->object)) {
-    SDL_Log("Collision detected!");
-    switch (state->player_vertical_direction) {
-    case DIR_UP:
-      state->object.y = state->player.y - state->object.h;
-      break;
-    case DIR_DOWN:
-      state->object.y = state->player.y + state->player.h;
-      break;
-    default:
-      break;
-    }
-    switch (state->player_horizontal_direction) {
-    case DIR_LEFT:
-      state->object.x = state->player.x - state->object.w;
-      break;
-    case DIR_RIGHT:
-      state->object.x = state->player.x + state->player.w;
-      break;
-    default:
-      break;
-    }
+  Direction collision_direction = GetCollisionDirection(&state->player, &state->object);
+  if (collision_direction != DIR_NONE) {
+    state->object.x += horizontal_travel;
+    state->object.y += vertical_travel;
   }
 
   SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_GRAY));
@@ -203,6 +229,24 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_RenderFillRect(state->renderer, &state->player);
   SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_RED));
   SDL_RenderFillRect(state->renderer, &state->object);
+
+  SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_WHITE));
+  switch (collision_direction) {
+  case DIR_UP:
+    SDL_RenderDebugText(state->renderer, 10, 10, "Collision: UP");
+    break;
+  case DIR_DOWN:
+    SDL_RenderDebugText(state->renderer, 10, 10, "Collision: DOWN");
+    break;
+  case DIR_LEFT:
+    SDL_RenderDebugText(state->renderer, 10, 10, "Collision: LEFT");
+    break;
+  case DIR_RIGHT:
+    SDL_RenderDebugText(state->renderer, 10, 10, "Collision: RIGHT");
+    break;
+  default:
+    break;
+  }
 
   /* put the newly-cleared rendering on the screen. */
   SDL_RenderPresent(state->renderer);
