@@ -27,10 +27,11 @@ typedef struct {
   SDL_Window *window;
   SDL_Renderer *renderer;
   Uint64 last_frame_time;
-  SDL_FPoint player_position;
+  SDL_FRect player;
   Direction player_direction;
   Direction player_horizontal_direction;
   Direction player_vertical_direction;
+  SDL_FRect object;
 } AppState;
 
 /* This function runs once at startup. */
@@ -63,6 +64,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   state->player_direction = DIR_NONE;
   state->player_horizontal_direction = DIR_NONE;
   state->player_vertical_direction = DIR_NONE;
+  state->player.x = 100;
+  state->player.y = 100;
+  state->player.w = PLAYER_WIDTH;
+  state->player.h = PLAYER_HEIGHT;
+  state->object.x = 400;
+  state->object.y = 400;
+  state->object.w = 35;
+  state->object.h = 35;
 
   *appstate = state;
   return SDL_APP_CONTINUE; /* carry on with the program! */
@@ -128,6 +137,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   return SDL_APP_CONTINUE; /* carry on with the program! */
 }
 
+Direction check_collision(SDL_FRect *a, SDL_FRect *b) {
+  return (a->x < b->x + b->w) && (a->x + a->w > b->x) && (a->y < b->y + b->h) &&
+         (a->y + a->h > b->y);
+}
+
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate) {
   AppState *state = (AppState *)appstate;
@@ -137,23 +151,47 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   state->last_frame_time = now;
   switch (state->player_vertical_direction) {
   case DIR_UP:
-    state->player_position.y -= PLAYER_SPEED * delta_time;
+    state->player.y -= PLAYER_SPEED * delta_time;
     break;
   case DIR_DOWN:
-    state->player_position.y += PLAYER_SPEED * delta_time;
+    state->player.y += PLAYER_SPEED * delta_time;
     break;
   default:
     break;
   }
   switch (state->player_horizontal_direction) {
   case DIR_LEFT:
-    state->player_position.x -= PLAYER_SPEED * delta_time;
+    state->player.x -= PLAYER_SPEED * delta_time;
     break;
   case DIR_RIGHT:
-    state->player_position.x += PLAYER_SPEED * delta_time;
+    state->player.x += PLAYER_SPEED * delta_time;
     break;
   default:
     break;
+  }
+
+  if (check_collision(&state->player, &state->object)) {
+    SDL_Log("Collision detected!");
+    switch (state->player_vertical_direction) {
+    case DIR_UP:
+      state->object.y = state->player.y - state->object.h;
+      break;
+    case DIR_DOWN:
+      state->object.y = state->player.y + state->player.h;
+      break;
+    default:
+      break;
+    }
+    switch (state->player_horizontal_direction) {
+    case DIR_LEFT:
+      state->object.x = state->player.x - state->object.w;
+      break;
+    case DIR_RIGHT:
+      state->object.x = state->player.x + state->player.w;
+      break;
+    default:
+      break;
+    }
   }
 
   SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_GRAY));
@@ -162,10 +200,9 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_RenderClear(state->renderer);
 
   SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_GREEN));
-  SDL_FRect rect = {state->player_position.x, state->player_position.y, PLAYER_WIDTH,
-                    PLAYER_HEIGHT};
-
-  SDL_RenderFillRect(state->renderer, &rect);
+  SDL_RenderFillRect(state->renderer, &state->player);
+  SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_RED));
+  SDL_RenderFillRect(state->renderer, &state->object);
 
   /* put the newly-cleared rendering on the screen. */
   SDL_RenderPresent(state->renderer);
