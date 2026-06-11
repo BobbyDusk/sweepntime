@@ -7,6 +7,11 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # Export compile commands for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Force CMake to explicitly list all include paths in compile_commands.json
+# instead of hiding them as "system implicit" paths.
+set(CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES "")
+set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "")
+
 # 1. Look for the SDL3 package provided by your Nix environment
 find_package(SDL3 REQUIRED)
 find_package(SDL3_image REQUIRED)
