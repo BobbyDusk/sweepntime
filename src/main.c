@@ -36,7 +36,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     return SDL_APP_FAILURE;
   }
 
-  if (!SDL_CreateWindowAndRenderer("Sweep'n Time", 1920, 1080, SDL_WINDOW_RESIZABLE, &state->window,
+  if (!SDL_CreateWindowAndRenderer("Sweep'n Time", 0, 0, SDL_WINDOW_FULLSCREEN, &state->window,
                                    &state->renderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -53,9 +53,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   ECS_COMPONENT(state->ecs_world, Visualization);
   ECS_COMPONENT(state->ecs_world, Input);
 
-  ECS_SYSTEM(state->ecs_world, InputSystem, EcsPreUpdate, Input, Movement);
-  ECS_SYSTEM(state->ecs_world, MoveSystem, EcsOnUpdate, Position, Movement);
-  ECS_SYSTEM(state->ecs_world, RenderSystem, EcsPostUpdate, Position, Size, Visualization);
+  InputSystemInit(state->ecs_world);
+  MoveSystemInit(state->ecs_world);
+  RenderSystemInit(state->ecs_world);
 
   ecs_entity_t player = ecs_entity(state->ecs_world, {.name = "Player"});
   ecs_set(state->ecs_world, player, Position, {100, 100});
@@ -79,24 +79,28 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
     ecs_entity_t player = ecs_lookup(state->ecs_world, "Player");
     ECS_COMPONENT(state->ecs_world, Input);
 
+    Input *input = ecs_get_mut(state->ecs_world, player, Input);
+
     switch (event->key.key) {
     case SDLK_W:
     case SDLK_UP:
-      ecs_set(state->ecs_world, player, Input, {.up = is_down});
+      input->up = is_down;
       break;
     case SDLK_S:
     case SDLK_DOWN:
-      ecs_set(state->ecs_world, player, Input, {.down = is_down});
+      input->down = is_down;
       break;
     case SDLK_A:
     case SDLK_LEFT:
-      ecs_set(state->ecs_world, player, Input, {.left = is_down});
+      input->left = is_down;
       break;
     case SDLK_D:
     case SDLK_RIGHT:
-      ecs_set(state->ecs_world, player, Input, {.right = is_down});
+      input->right = is_down;
       break;
     }
+
+    ecs_modified(state->ecs_world, player, Input);
   }
 
   if (event->type == SDL_EVENT_QUIT) {
@@ -131,43 +135,12 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
   ecs_progress(state->ecs_world, delta_time);
 
-  float vertical_travel = 0;
-  switch (state->player_vertical_direction) {
-  case DIR_UP:
-    vertical_travel = -PLAYER_SPEED * delta_time;
-    break;
-  case DIR_DOWN:
-    vertical_travel = PLAYER_SPEED * delta_time;
-    break;
-  default:
-    break;
-  }
-  state->player_position.y += vertical_travel;
-
-  float horizontal_travel = 0;
-  switch (state->player_horizontal_direction) {
-  case DIR_LEFT:
-    horizontal_travel = -PLAYER_SPEED * delta_time;
-    break;
-  case DIR_RIGHT:
-    horizontal_travel = PLAYER_SPEED * delta_time;
-    break;
-  default:
-    break;
-  }
-  state->player_position.x += horizontal_travel;
-
+  /*
   if (CheckCollision(&state->player, &state->object)) {
     state->object.x += horizontal_travel;
     state->object.y += vertical_travel;
   }
-
-  SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_GREEN));
-  SDL_RenderFillRect(state->renderer, &state->player);
-  SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_RED));
-  SDL_RenderFillRect(state->renderer, &state->object);
-
-  SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_WHITE));
+  */
 
   /* put the newly-cleared rendering on the screen. */
   SDL_RenderPresent(state->renderer);

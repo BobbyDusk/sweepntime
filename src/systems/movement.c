@@ -2,13 +2,19 @@
 #include "../components.h"
 #include "../config.h"
 
+void MoveSystemInit(ecs_world_t *world) {
+  ECS_COMPONENT(world, Position);
+  ECS_COMPONENT(world, Movement);
+  ECS_SYSTEM(world, MoveSystem, EcsOnUpdate, Position, Movement);
+}
+
 void MoveSystem(ecs_iter_t *it) {
-  Position *positions = ecs_field(it, Position, 1);
-  MoveDirection *directions = ecs_field(it, MoveDirection, 2);
+  Position *positions = ecs_field(it, Position, 0);
+  Movement *movement = ecs_field(it, Movement, 1);
   float delta_time = it->delta_time;
 
   for (int i = 0; i < it->count; i++) {
-    switch (directions[i]) {
+    switch (movement[i].direction) {
     case DIR_UP:
       positions[i].y -= MOVEMENT_SPEED * delta_time;
       break;
