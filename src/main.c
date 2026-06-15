@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "components.h"
 #include "config.h"
+#include "systems/debug.h"
 #include "systems/input.h"
 #include "systems/movement.h"
 #include "systems/rendering.h"
@@ -43,6 +44,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   }
   SDL_SetRenderLogicalPresentation(state->renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
+  if (!SDL_SetRenderVSync(state->renderer, 1)) {
+    SDL_Log("Warning: Could not enable V-Sync: %s", SDL_GetError());
+  }
+
   state->last_frame_time = SDL_GetTicksNS();
   state->ecs_world = ecs_init();
   ecs_set_ctx(state->ecs_world, state->renderer, NULL);
@@ -56,6 +61,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   InputSystemInit(state->ecs_world);
   MoveSystemInit(state->ecs_world);
   RenderSystemInit(state->ecs_world);
+  DebugSystemInit(state->ecs_world);
 
   ecs_entity_t player = ecs_entity(state->ecs_world, {.name = "Player"});
   ecs_set(state->ecs_world, player, Position, {100, 100});
@@ -66,6 +72,20 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   *appstate = state;
   return SDL_APP_CONTINUE; /* carry on with the program! */
+}
+
+void ToggleEngineVSync(SDL_Renderer *renderer) {
+  int current_mode = 0;
+
+  // Read the actual hardware/driver state safely
+  if (SDL_GetRenderVSync(renderer, &current_mode)) {
+    // If it's off (0), flip it to standard on (1). Otherwise, turn it off (0).
+    int new_mode = (current_mode == 0) ? 1 : 0;
+
+    if (SDL_SetRenderVSync(renderer, new_mode)) {
+      SDL_Log("V-Sync successfully changed to: %d", new_mode);
+    }
+  }
 }
 
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
@@ -101,6 +121,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
     }
 
     ecs_modified(state->ecs_world, player, Input);
+  }
+
+  if (event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_1) {
+    ToggleEngineVSync(state->renderer);
   }
 
   if (event->type == SDL_EVENT_QUIT) {
