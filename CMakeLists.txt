@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.25)
 project(Sweepntime C)
 
+include(FetchContent)
+
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
@@ -18,6 +20,13 @@ find_package(SDL3_image REQUIRED)
 find_package(SDL3_mixer REQUIRED)
 find_package(SDL3_ttf REQUIRED)
 
+FetchContent_Declare(
+    flecs
+    GIT_REPOSITORY https://github.com/SanderMertens/flecs.git
+    GIT_TAG        master # Or use a specific version tag like v4.1.5
+)
+FetchContent_MakeAvailable(flecs)
+
 # Enable AddressSanitizer for debug builds when requested.
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
@@ -33,6 +42,7 @@ target_link_libraries(sweepntime PRIVATE
     SDL3_image::SDL3_image 
     SDL3_mixer::SDL3_mixer 
     SDL3_ttf::SDL3_ttf
+    flecs::flecs_static
 )
 
 # 3. Base strict warning options for your specific target
