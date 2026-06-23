@@ -2,21 +2,20 @@
 
 #include <SDL3/SDL.h>
 
-typedef enum {
-  DIR_UP,
-  DIR_DOWN,
-  DIR_LEFT,
-  DIR_RIGHT,
-  DIR_UP_RIGHT,
-  DIR_DOWN_RIGHT,
-  DIR_DOWN_LEFT,
-  DIR_UP_LEFT,
-  DIR_NONE
-} MoveDirection;
+typedef struct {
+  float x;
+  float y;
+} Velocity;
 
 typedef struct {
-  MoveDirection direction;
-} Movement;
+  float x;
+  float y;
+} ForceAccumulator;
+
+typedef struct {
+  float inv_mass; // 1.0 / mass. Use 0.0 for heavy, unmovable objects.
+  float damping;  // Linear friction (e.g., 0.98) so objects naturally slow down
+} PhysicsBody;
 
 typedef struct {
   bool up;
@@ -38,3 +37,7 @@ typedef struct {
   float w;
   float h;
 } Size;
+
+typedef struct {
+  float weight;
+} Pushable;

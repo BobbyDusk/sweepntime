@@ -3,7 +3,7 @@
 #include "config.h"
 #include "systems/debug.h"
 #include "systems/input.h"
-#include "systems/movement.h"
+#include "systems/physics.h"
 #include "systems/rendering.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -54,21 +54,32 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   ECS_COMPONENT(state->ecs_world, Position);
   ECS_COMPONENT(state->ecs_world, Size);
-  ECS_COMPONENT(state->ecs_world, Movement);
   ECS_COMPONENT(state->ecs_world, Visualization);
   ECS_COMPONENT(state->ecs_world, Input);
+  ECS_COMPONENT(state->ecs_world, Pushable);
+  ECS_COMPONENT(state->ecs_world, Velocity);
+  ECS_COMPONENT(state->ecs_world, ForceAccumulator);
+  ECS_COMPONENT(state->ecs_world, PhysicsBody);
 
   InputSystemInit(state->ecs_world);
-  MoveSystemInit(state->ecs_world);
+  PhysicsSystemInit(state->ecs_world);
   RenderSystemInit(state->ecs_world);
   DebugSystemInit(state->ecs_world);
 
   ecs_entity_t player = ecs_entity(state->ecs_world, {.name = "Player"});
   ecs_set(state->ecs_world, player, Position, {100, 100});
   ecs_set(state->ecs_world, player, Size, {PLAYER_WIDTH, PLAYER_HEIGHT});
-  ecs_set(state->ecs_world, player, Movement, {DIR_NONE});
   ecs_set(state->ecs_world, player, Visualization, {COLOR_GREEN});
   ecs_set(state->ecs_world, player, Input, {false, false, false, false});
+  ecs_set(state->ecs_world, player, Velocity, {0.0F, 0.0F});
+  ecs_set(state->ecs_world, player, ForceAccumulator, {0.0F, 0.0F});
+  ecs_set(state->ecs_world, player, PhysicsBody, {PLAYER_INV_MASS, PLAYER_DAMPING});
+
+  ecs_entity_t object = ecs_entity(state->ecs_world, {.name = "Object"});
+  ecs_set(state->ecs_world, object, Position, {400, 300});
+  ecs_set(state->ecs_world, object, Size, {PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2});
+  ecs_set(state->ecs_world, object, Visualization, {COLOR_RED});
+  ecs_set(state->ecs_world, object, Pushable, {10.0F});
 
   *appstate = state;
   return SDL_APP_CONTINUE; /* carry on with the program! */

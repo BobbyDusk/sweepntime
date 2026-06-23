@@ -1,36 +1,46 @@
 #include "input.h"
 #include "../components.h"
+#include "../config.h"
 
 void InputSystemInit(ecs_world_t *world) {
   ECS_COMPONENT(world, Input);
-  ECS_COMPONENT(world, Movement);
-  ECS_SYSTEM(world, InputSystem, EcsPreUpdate, Input, Movement);
+  ECS_COMPONENT(world, ForceAccumulator);
+  ECS_SYSTEM(world, InputSystem, EcsPreUpdate, Input, ForceAccumulator);
 }
 
 void InputSystem(ecs_iter_t *it) {
   Input *inputs = ecs_field(it, Input, 0);
-  Movement *movement = ecs_field(it, Movement, 1);
+  ForceAccumulator *force_accumulators = ecs_field(it, ForceAccumulator, 1);
 
   for (int i = 0; i < it->count; i++) {
     // Evaluate flags to determine the composite movement direction
     if (inputs[i].up && inputs[i].right) {
-      movement[i].direction = DIR_UP_RIGHT;
+      force_accumulators[i].x = MOVEMENT_FORCE / SQRT2;
+      force_accumulators[i].y = -MOVEMENT_FORCE / SQRT2;
     } else if (inputs[i].down && inputs[i].right) {
-      movement[i].direction = DIR_DOWN_RIGHT;
+      force_accumulators[i].x = MOVEMENT_FORCE / SQRT2;
+      force_accumulators[i].y = MOVEMENT_FORCE / SQRT2;
     } else if (inputs[i].down && inputs[i].left) {
-      movement[i].direction = DIR_DOWN_LEFT;
+      force_accumulators[i].x = -MOVEMENT_FORCE / SQRT2;
+      force_accumulators[i].y = MOVEMENT_FORCE / SQRT2;
     } else if (inputs[i].up && inputs[i].left) {
-      movement[i].direction = DIR_UP_LEFT;
+      force_accumulators[i].x = -MOVEMENT_FORCE / SQRT2;
+      force_accumulators[i].y = -MOVEMENT_FORCE / SQRT2;
     } else if (inputs[i].up) {
-      movement[i].direction = DIR_UP;
+      force_accumulators[i].x = 0.0F;
+      force_accumulators[i].y = -MOVEMENT_FORCE;
     } else if (inputs[i].right) {
-      movement[i].direction = DIR_RIGHT;
+      force_accumulators[i].x = MOVEMENT_FORCE;
+      force_accumulators[i].y = 0.0F;
     } else if (inputs[i].down) {
-      movement[i].direction = DIR_DOWN;
+      force_accumulators[i].x = 0.0F;
+      force_accumulators[i].y = MOVEMENT_FORCE;
     } else if (inputs[i].left) {
-      movement[i].direction = DIR_LEFT;
+      force_accumulators[i].x = -MOVEMENT_FORCE;
+      force_accumulators[i].y = 0.0F;
     } else {
-      movement[i].direction = DIR_NONE;
+      force_accumulators[i].x = 0.0F;
+      force_accumulators[i].y = 0.0F;
     }
   }
 }
