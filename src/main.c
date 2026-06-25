@@ -2,6 +2,7 @@
 #include "components.h"
 #include "config.h"
 #include "systems/debug.h"
+#include "systems/friction.h"
 #include "systems/input.h"
 #include "systems/physics.h"
 #include "systems/rendering.h"
@@ -16,6 +17,8 @@ typedef struct {
   SDL_Renderer *renderer;
   Uint64 last_frame_time;
   ecs_world_t *ecs_world;
+  ecs_query_t *movable_query;
+  ecs_query_t *surfaces_query;
 } AppState;
 
 /* This function runs once at startup. */
@@ -50,7 +53,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   state->last_frame_time = SDL_GetTicksNS();
   state->ecs_world = ecs_init();
-  ecs_set_ctx(state->ecs_world, state->renderer, NULL);
 
   ECS_COMPONENT(state->ecs_world, Position);
   ECS_COMPONENT(state->ecs_world, Size);
@@ -60,26 +62,49 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   ECS_COMPONENT(state->ecs_world, Velocity);
   ECS_COMPONENT(state->ecs_world, ForceAccumulator);
   ECS_COMPONENT(state->ecs_world, PhysicsBody);
+  ECS_COMPONENT(state->ecs_world, SurfaceMaterial);
+  ECS_TAG(state->ecs_world, IsPlayer);
+
+  state->movable_query = ecs_query(state->ecs_world, {.terms = {{.id = ecs_id(Velocity)},
+                                                                {.id = ecs_id(ForceAccumulator)},
+                                                                {.id = ecs_id(PhysicsBody)}}});
+  state->surfaces_query = ecs_query(
+      state->ecs_world,
+      {.terms = {{.id = ecs_id(Position)}, {.id = ecs_id(Size)}, {.id = ecs_id(SurfaceMaterial)}}});
 
   InputSystemInit(state->ecs_world);
   PhysicsSystemInit(state->ecs_world);
-  RenderSystemInit(state->ecs_world);
+  FrictionSystemInit(state->ecs_world, state->surfaces_query);
+  RenderSystemInit(state->ecs_world, state->renderer);
   DebugSystemInit(state->ecs_world);
 
+  ecs_entity_t sticky_surface = ecs_entity(state->ecs_world, {.name = "StickySurface"});
+  ecs_set(state->ecs_world, sticky_surface, Position, {600, 400});
+  ecs_set(state->ecs_world, sticky_surface, Size, {200, 200});
+  ecs_set(state->ecs_world, sticky_surface, Visualization, {COLOR_BLUE});
+  ecs_set(state->ecs_world, sticky_surface, SurfaceMaterial, {STICKY_FRICTION_COEFFICIENT});
+
+  ecs_entity_t slippery_surface = ecs_entity(state->ecs_world, {.name = "SlipperySurface"});
+  ecs_set(state->ecs_world, slippery_surface, Position, {1000, 400});
+  ecs_set(state->ecs_world, slippery_surface, Size, {200, 200});
+  ecs_set(state->ecs_world, slippery_surface, Visualization, {COLOR_YELLOW});
+  ecs_set(state->ecs_world, slippery_surface, SurfaceMaterial, {SLIPPERY_FRICTION_COEFFICIENT});
+
+  ecs_entity_t object = ecs_entity(state->ecs_world, {.name = "Object"});
+  ecs_set(state->ecs_world, object, Position, {400, 300});
+  ecs_set(state->ecs_world, object, Size, {PLAYER_WIDTH / 2.0, PLAYER_HEIGHT / 2.0});
+  ecs_set(state->ecs_world, object, Visualization, {COLOR_RED});
+  ecs_set(state->ecs_world, object, Pushable, {10.0F});
+
   ecs_entity_t player = ecs_entity(state->ecs_world, {.name = "Player"});
+  ecs_add(state->ecs_world, player, IsPlayer);
   ecs_set(state->ecs_world, player, Position, {100, 100});
   ecs_set(state->ecs_world, player, Size, {PLAYER_WIDTH, PLAYER_HEIGHT});
   ecs_set(state->ecs_world, player, Visualization, {COLOR_GREEN});
   ecs_set(state->ecs_world, player, Input, {false, false, false, false});
   ecs_set(state->ecs_world, player, Velocity, {0.0F, 0.0F});
   ecs_set(state->ecs_world, player, ForceAccumulator, {0.0F, 0.0F});
-  ecs_set(state->ecs_world, player, PhysicsBody, {PLAYER_INV_MASS, PLAYER_DAMPING});
-
-  ecs_entity_t object = ecs_entity(state->ecs_world, {.name = "Object"});
-  ecs_set(state->ecs_world, object, Position, {400, 300});
-  ecs_set(state->ecs_world, object, Size, {PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2});
-  ecs_set(state->ecs_world, object, Visualization, {COLOR_RED});
-  ecs_set(state->ecs_world, object, Pushable, {10.0F});
+  ecs_set(state->ecs_world, player, PhysicsBody, {PLAYER_INV_MASS});
 
   *appstate = state;
   return SDL_APP_CONTINUE; /* carry on with the program! */
@@ -150,11 +175,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   return SDL_APP_CONTINUE; /* carry on with the program! */
 }
 
-bool CheckCollision(const SDL_FRect *a, const SDL_FRect *b) {
-  return (a->x < b->x + b->w) && (a->x + a->w > b->x) && (a->y < b->y + b->h) &&
-         (a->y + a->h > b->y);
-}
-
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate) {
   AppState *state = (AppState *)appstate;
@@ -188,10 +208,10 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   (void)result;
   if (appstate) {
     AppState *state = (AppState *)appstate;
+    ecs_fini(state->ecs_world); // Takes care of all entities, systems and queries
     SDL_DestroyRenderer(state->renderer);
     SDL_DestroyWindow(state->window);
     SDL_free(state);
-    ecs_fini(state->ecs_world);
   }
   /* SDL will clean up the window/renderer for us. */
 }

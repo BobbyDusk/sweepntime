@@ -5,7 +5,7 @@
 void InputSystemInit(ecs_world_t *world) {
   ECS_COMPONENT(world, Input);
   ECS_COMPONENT(world, ForceAccumulator);
-  ECS_SYSTEM(world, InputSystem, EcsPreUpdate, Input, ForceAccumulator);
+  ECS_SYSTEM(world, InputSystem, EcsPreUpdate, [in] Input, [out] ForceAccumulator);
 }
 
 void InputSystem(ecs_iter_t *it) {

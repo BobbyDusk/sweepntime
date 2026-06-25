@@ -1,5 +1,7 @@
 #include "physics.h"
 #include "../components.h"
+#include "../config.h"
+#include <math.h>
 
 void PhysicsSystemInit(ecs_world_t *world) {
   ECS_COMPONENT(world, Position);
@@ -17,13 +19,13 @@ void PhysicsSystem(ecs_iter_t *it) {
   float delta_time = it->delta_time;
 
   for (int i = 0; i < it->count; i++) {
-    // Update velocity based on force accumulator and inverse mass
-    velocities[i].x += force_accumulators[i].x * bodies[i].inv_mass * delta_time;
-    velocities[i].y += force_accumulators[i].y * bodies[i].inv_mass * delta_time;
+    // a = F / m or a = F * inv_mass
+    float acceleration_x = force_accumulators[i].x * bodies[i].inv_mass;
+    float acceleration_y = force_accumulators[i].y * bodies[i].inv_mass;
 
-    // Apply damping to velocity
-    velocities[i].x *= bodies[i].damping;
-    velocities[i].y *= bodies[i].damping;
+    // v = v + a * dt
+    velocities[i].x += acceleration_x * delta_time;
+    velocities[i].y += acceleration_y * delta_time;
 
     // Update position based on velocity
     positions[i].x += velocities[i].x * delta_time;

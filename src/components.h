@@ -14,8 +14,11 @@ typedef struct {
 
 typedef struct {
   float inv_mass; // 1.0 / mass. Use 0.0 for heavy, unmovable objects.
-  float damping;  // Linear friction (e.g., 0.98) so objects naturally slow down
 } PhysicsBody;
+
+typedef struct {
+  float friction_coefficient;
+} SurfaceMaterial;
 
 typedef struct {
   bool up;
