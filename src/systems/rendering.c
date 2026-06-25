@@ -8,9 +8,9 @@ void RenderSystemInit(ecs_world_t *world, SDL_Renderer *renderer) {
   ECS_COMPONENT(world, Visualization);
   ecs_system(world, {.entity = ecs_entity(world, {.name = "RenderSystem",
                                                   .add = ecs_ids(ecs_dependson(EcsPostUpdate))}),
-                     .query.terms = {{.id = ecs_id(Position)},
-                                     {.id = ecs_id(Size)},
-                                     {.id = ecs_id(Visualization)}},
+                     .query.terms = {{.id = ecs_id(Position), .inout = EcsIn},
+                                     {.id = ecs_id(Size), .inout = EcsIn},
+                                     {.id = ecs_id(Visualization), .inout = EcsIn}},
                      .callback = RenderSystem,
                      .ctx = renderer});
 }

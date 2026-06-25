@@ -58,14 +58,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   ECS_COMPONENT(state->ecs_world, Size);
   ECS_COMPONENT(state->ecs_world, Visualization);
   ECS_COMPONENT(state->ecs_world, Input);
-  ECS_COMPONENT(state->ecs_world, Pushable);
   ECS_COMPONENT(state->ecs_world, Velocity);
   ECS_COMPONENT(state->ecs_world, ForceAccumulator);
   ECS_COMPONENT(state->ecs_world, PhysicsBody);
   ECS_COMPONENT(state->ecs_world, SurfaceMaterial);
   ECS_TAG(state->ecs_world, IsPlayer);
 
-  state->movable_query = ecs_query(state->ecs_world, {.terms = {{.id = ecs_id(Velocity)},
+  state->movable_query = ecs_query(state->ecs_world, {.terms = {{.id = ecs_id(Position)},
+                                                                {.id = ecs_id(Size)},
+                                                                {.id = ecs_id(Velocity)},
                                                                 {.id = ecs_id(ForceAccumulator)},
                                                                 {.id = ecs_id(PhysicsBody)}}});
   state->surfaces_query = ecs_query(
@@ -94,7 +95,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   ecs_set(state->ecs_world, object, Position, {400, 300});
   ecs_set(state->ecs_world, object, Size, {PLAYER_WIDTH / 2.0, PLAYER_HEIGHT / 2.0});
   ecs_set(state->ecs_world, object, Visualization, {COLOR_RED});
-  ecs_set(state->ecs_world, object, Pushable, {10.0F});
+  ecs_set(state->ecs_world, object, Velocity, {0.0F, 0.0F});
+  ecs_set(state->ecs_world, object, ForceAccumulator, {0.0F, 0.0F});
+  ecs_set(state->ecs_world, object, PhysicsBody, {PLAYER_INV_MASS * 2.0F});
 
   ecs_entity_t player = ecs_entity(state->ecs_world, {.name = "Player"});
   ecs_add(state->ecs_world, player, IsPlayer);

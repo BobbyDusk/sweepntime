@@ -8,7 +8,8 @@ void PhysicsSystemInit(ecs_world_t *world) {
   ECS_COMPONENT(world, Velocity);
   ECS_COMPONENT(world, ForceAccumulator);
   ECS_COMPONENT(world, PhysicsBody);
-  ECS_SYSTEM(world, PhysicsSystem, EcsOnUpdate, Position, Velocity, ForceAccumulator, PhysicsBody);
+  ECS_SYSTEM(world, PhysicsSystem, EcsOnUpdate, Position, Velocity,
+             ForceAccumulator, [in] PhysicsBody);
 }
 
 void PhysicsSystem(ecs_iter_t *it) {

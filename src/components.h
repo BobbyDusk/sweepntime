@@ -40,7 +40,3 @@ typedef struct {
   float w;
   float h;
 } Size;
-
-typedef struct {
-  float weight;
-} Pushable;

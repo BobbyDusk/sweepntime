@@ -25,7 +25,14 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/SanderMertens/flecs.git
     GIT_TAG        master # Or use a specific version tag like v4.1.5
 )
-FetchContent_MakeAvailable(flecs)
+
+# Fetch Box2D (Pure C version)
+FetchContent_Declare(
+    box2d
+    GIT_REPOSITORY https://github.com/erincatto/box2d.git
+    GIT_TAG        v3.1.1 # Pinned to stable version v3
+)
+FetchContent_MakeAvailable(flecs box2d)
 
 # Enable AddressSanitizer for debug builds when requested.
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
@@ -43,6 +50,7 @@ target_link_libraries(sweepntime PRIVATE
     SDL3_mixer::SDL3_mixer 
     SDL3_ttf::SDL3_ttf
     flecs::flecs_static
+    box2d::box2d
 )
 
 # 3. Base strict warning options for your specific target

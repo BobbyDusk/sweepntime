@@ -6,3 +6,5 @@ UseTab: Never
 BreakBeforeBraces: Attach
 AllowShortFunctionsOnASingleLine: Empty
 AlignTrailingComments: true
+NumericLiteralCase:
+  Suffix: Upper
