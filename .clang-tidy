@@ -1,5 +1,5 @@
 ---
-Checks: >
+Checks: >-
   clang-diagnostic-*,
   clang-analyzer-*,
   bugprone-*,
@@ -8,4 +8,5 @@ Checks: >
   performance-*,
   -modernize-*,
   -readability-magic-numbers
+
 HeaderFilterRegex: '^((?!third_party).)*$'

@@ -1,20 +1,17 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <box2d/box2d.h>
 
 typedef struct {
-  float x;
-  float y;
-} Velocity;
+  b2BodyId body_id;
+  float half_width;
+  float half_height;
+} RigidBody;
 
 typedef struct {
-  float x;
-  float y;
-} ForceAccumulator;
-
-typedef struct {
-  float inv_mass; // 1.0 / mass. Use 0.0 for heavy, unmovable objects.
-} PhysicsBody;
+  b2WorldId world_id;
+} PhysicsWorld;
 
 typedef struct {
   float friction_coefficient;
@@ -35,8 +32,3 @@ typedef struct {
   float x;
   float y;
 } Position;
-
-typedef struct {
-  float w;
-  float h;
-} Size;
