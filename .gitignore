@@ -5,6 +5,10 @@ dist/
 *.a
 *.so
 *.dylib
+/[Bb]uild/
+/[Bb]uilds/
+/Library/
+
 
 # CMake
 CMakeFiles/
@@ -27,3 +31,10 @@ Thumbs.db
 # nix
 .direnv/
 .nixgl.env
+
+# Exclude private console SDK integrations
+*ConsoleSDK*
+*SonyPS5*
+*NintendoSwitch*
+*XboxGDK*
+/platforms/
