@@ -76,9 +76,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   // ecs_set(state->ecs_world, slippery_surface, Visualization, {COLOR_YELLOW});
   // ecs_set(state->ecs_world, slippery_surface, SurfaceMaterial, {SLIPPERY_FRICTION_COEFFICIENT});
 
-  CreateObject(state->ecs_world, 20, 10, 0.5F, 0.5F, true, COLOR_RED);
+  CreateObject(state->ecs_world, 10, 5, 0.5F, 0.5F, true, COLOR_RED);
   ecs_entity_t player =
-      CreateObject(state->ecs_world, 5, 5, PLAYER_WIDTH, PLAYER_HEIGHT, true, COLOR_GREEN);
+      CreateObject(state->ecs_world, 2, 2, PLAYER_WIDTH, PLAYER_HEIGHT, true, COLOR_GREEN);
   ecs_set_name(state->ecs_world, player, "Player");
   ecs_set(state->ecs_world, player, Input, {false, false, false, false});
 

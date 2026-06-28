@@ -3,10 +3,10 @@
 // config
 #define SDL_MAIN_USE_CALLBACKS 1 // use the callbacks instead of main()
 #define EXIT_ON_ESC_KEY true
-#define PIXELS_PER_METER 50.0f // 1920 screen width is roughtly 40 meters
-#define PLAYER_WIDTH 0.5       // in m
-#define PLAYER_HEIGHT 0.5      // in m
-#define MOVEMENT_SPEED 12.0f   // in m/s
+#define PIXELS_PER_METER 100.0f // 1920 screen width is roughtly 20 meters
+#define PLAYER_WIDTH 0.5        // in m
+#define PLAYER_HEIGHT 0.5       // in m
+#define MOVEMENT_SPEED 6.0f     // in m/s
 
 // TODO: remove all old physics config
 #define MOVEMENT_FORCE 4500
