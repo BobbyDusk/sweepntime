@@ -2,9 +2,9 @@
 #include "components.h"
 #include "config.h"
 #include "object.h"
-#include "physics.h"
 #include "systems/debug.h"
 #include "systems/input.h"
+#include "systems/physics.h"
 #include "systems/rendering.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -55,7 +55,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   state->last_frame_time = SDL_GetTicksNS();
   state->ecs_world = ecs_init();
 
-  ECS_COMPONENT(state->ecs_world, Position);
   ECS_COMPONENT(state->ecs_world, RigidBody);
   ECS_COMPONENT(state->ecs_world, Visualization);
   ECS_COMPONENT(state->ecs_world, Input);
@@ -63,36 +62,25 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   ECS_TAG(state->ecs_world, IsPlayer);
 
   InputSystemInit(state->ecs_world);
-  InitPhysics(state->ecs_world);
+  PhysicsSystemInit(state->ecs_world);
   RenderSystemInit(state->ecs_world, state->renderer);
   DebugSystemInit(state->ecs_world);
 
   // ecs_entity_t sticky_surface = ecs_entity(state->ecs_world, {.name = "StickySurface"});
-  // ecs_set(state->ecs_world, sticky_surface, Position, {600, 400});
   // ecs_set(state->ecs_world, sticky_surface, Size, {200, 200});
   // ecs_set(state->ecs_world, sticky_surface, Visualization, {COLOR_BLUE});
   // ecs_set(state->ecs_world, sticky_surface, SurfaceMaterial, {STICKY_FRICTION_COEFFICIENT});
 
   // ecs_entity_t slippery_surface = ecs_entity(state->ecs_world, {.name = "SlipperySurface"});
-  // ecs_set(state->ecs_world, slippery_surface, Position, {1000, 400});
   // ecs_set(state->ecs_world, slippery_surface, Size, {200, 200});
   // ecs_set(state->ecs_world, slippery_surface, Visualization, {COLOR_YELLOW});
   // ecs_set(state->ecs_world, slippery_surface, SurfaceMaterial, {SLIPPERY_FRICTION_COEFFICIENT});
 
-  ecs_entity_t object = CreateObject(state->ecs_world, 400, 300, 1.0F, 1.0F, true, COLOR_RED);
-  ecs_set(state->ecs_world, object, Position, {400, 300});
-  ecs_set(state->ecs_world, object, RigidBody, {50, 50});
-  ecs_set(state->ecs_world, object, Visualization, {COLOR_RED});
-
-  ecs_entity_t player = ecs_entity(state->ecs_world, {.name = "Player"});
-  ecs_add(state->ecs_world, player, IsPlayer);
-  ecs_set(state->ecs_world, player, Position, {100, 100});
-  ecs_set(state->ecs_world, player, Size, {PLAYER_WIDTH, PLAYER_HEIGHT});
-  ecs_set(state->ecs_world, player, Visualization, {COLOR_GREEN});
+  CreateObject(state->ecs_world, 20, 10, 0.5F, 0.5F, true, COLOR_RED);
+  ecs_entity_t player =
+      CreateObject(state->ecs_world, 5, 5, PLAYER_WIDTH, PLAYER_HEIGHT, true, COLOR_GREEN);
+  ecs_set_name(state->ecs_world, player, "Player");
   ecs_set(state->ecs_world, player, Input, {false, false, false, false});
-  ecs_set(state->ecs_world, player, Velocity, {0.0F, 0.0F});
-  ecs_set(state->ecs_world, player, ForceAccumulator, {0.0F, 0.0F});
-  ecs_set(state->ecs_world, player, PhysicsBody, {PLAYER_INV_MASS});
 
   *appstate = state;
   return SDL_APP_CONTINUE; /* carry on with the program! */

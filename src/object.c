@@ -26,10 +26,8 @@ ecs_entity_t CreateObject(ecs_world_t *ecs_world, float x, float y, float width,
   shapeDef.density = 1.0F; // kg per m^2
   b2CreatePolygonShape(bodyId, &shapeDef, &boxShape);
 
-  ECS_COMPONENT(ecs_world, Position);
   ECS_COMPONENT(ecs_world, RigidBody);
   ECS_COMPONENT(ecs_world, Visualization);
-  ecs_set(ecs_world, e, Position, {x, y});
   ecs_set(ecs_world, e, RigidBody, {bodyId, half_width, half_height});
   ecs_set(ecs_world, e, Visualization, {color});
 

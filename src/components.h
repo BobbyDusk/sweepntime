@@ -27,8 +27,3 @@ typedef struct {
 typedef struct {
   SDL_Color color;
 } Visualization;
-
-typedef struct {
-  float x;
-  float y;
-} Position;
