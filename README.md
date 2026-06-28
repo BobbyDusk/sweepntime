@@ -2,11 +2,14 @@
 
 ## Project Directory
 
-```
-- src/ # Contains all the source code
-- assets/ # Contains all the artistic assets (images, sound, etc.)
-- platforms/ # Contains all the code used for compilation and distrubution on different platforms
-```
+```text
+├── assets/             # Game assets (sprites, textures, audio, fonts)
+├── platforms/          # Platform-specific build wrappers and launcher code
+├── signatures/         # Generated automatically by CLAssistant bot (Do not touch)
+└── src/                # Core game source code and logic
+    ├── main.c          # Main file
+    ├── systems/        # ECS systems
+    └── systems/        # ECS systems
 
 ---
 
