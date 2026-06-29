@@ -41,12 +41,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     return SDL_APP_FAILURE;
   }
 
-  if (!SDL_CreateWindowAndRenderer("Sweep'n Time", 0, 0, SDL_WINDOW_FULLSCREEN, &state->window,
-                                   &state->renderer)) {
+  if (!SDL_CreateWindowAndRenderer("Sweep'n Time", BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT,
+                                   SDL_WINDOW_FULLSCREEN, &state->window, &state->renderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  SDL_SetRenderLogicalPresentation(state->renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+  SDL_SetRenderLogicalPresentation(state->renderer, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT,
+                                   SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
   if (!SDL_SetRenderVSync(state->renderer, 1)) {
     SDL_Log("Warning: Could not enable V-Sync: %s", SDL_GetError());
@@ -76,9 +77,36 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   // ecs_set(state->ecs_world, slippery_surface, Visualization, {COLOR_YELLOW});
   // ecs_set(state->ecs_world, slippery_surface, SurfaceMaterial, {SLIPPERY_FRICTION_COEFFICIENT});
 
-  CreateObject(state->ecs_world, 10, 5, 0.5F, 0.5F, true, COLOR_RED);
+  const float WALL_THICKNESS = 0.2F; // in meters
+  ObjectPhysicsParams object_physics_params = DefaultObjectPhysicsParams();
+  object_physics_params.density = 10.0F;
+  CreateObject(state->ecs_world, 10, 5, 0.4F, 0.4F, true, COLOR_RED, &object_physics_params);
+  ObjectPhysicsParams wall_physics_params = DefaultObjectPhysicsParams();
+  wall_physics_params.friction = 0.0F;
+  ecs_entity_t top_wall =
+      CreateObject(state->ecs_world, BASE_SCREEN_WIDTH / PIXELS_PER_METER / 2, WALL_THICKNESS / 2,
+                   BASE_SCREEN_WIDTH / PIXELS_PER_METER, WALL_THICKNESS, false, COLOR_DARK_GRAY,
+                   &wall_physics_params);
+  top_wall = ecs_set_name(state->ecs_world, top_wall, "TopWall");
+  ecs_entity_t bottom_wall =
+      CreateObject(state->ecs_world, BASE_SCREEN_WIDTH / PIXELS_PER_METER / 2,
+                   (BASE_SCREEN_HEIGHT / PIXELS_PER_METER) - (WALL_THICKNESS / 2),
+                   BASE_SCREEN_WIDTH / PIXELS_PER_METER, WALL_THICKNESS, false, COLOR_DARK_GRAY,
+                   &wall_physics_params);
+  bottom_wall = ecs_set_name(state->ecs_world, bottom_wall, "BottomWall");
+  ecs_entity_t left_wall =
+      CreateObject(state->ecs_world, WALL_THICKNESS / 2, BASE_SCREEN_HEIGHT / PIXELS_PER_METER / 2,
+                   WALL_THICKNESS, BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_DARK_GRAY,
+                   &wall_physics_params);
+  left_wall = ecs_set_name(state->ecs_world, left_wall, "LeftWall");
+  ecs_entity_t right_wall = CreateObject(
+      state->ecs_world, (BASE_SCREEN_WIDTH / PIXELS_PER_METER) - (WALL_THICKNESS / 2),
+      BASE_SCREEN_HEIGHT / PIXELS_PER_METER / 2, WALL_THICKNESS,
+      BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_DARK_GRAY, &wall_physics_params);
+  right_wall = ecs_set_name(state->ecs_world, right_wall, "RightWall");
+
   ecs_entity_t player =
-      CreateObject(state->ecs_world, 2, 2, PLAYER_WIDTH, PLAYER_HEIGHT, true, COLOR_GREEN);
+      CreateObject(state->ecs_world, 2, 2, PLAYER_WIDTH, PLAYER_HEIGHT, true, COLOR_GREEN, NULL);
   ecs_set_name(state->ecs_world, player, "Player");
   ecs_set(state->ecs_world, player, Input, {false, false, false, false});
 

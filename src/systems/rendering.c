@@ -29,12 +29,11 @@ void RenderSystem(ecs_iter_t *it) {
     float y_screen_space = b2_pos.y * PIXELS_PER_METER;
     float width_screen_space = (rigid_bodies[i].half_width * 2.0F) * PIXELS_PER_METER;
     float height_screen_space = (rigid_bodies[i].half_height * 2.0F) * PIXELS_PER_METER;
-    SDL_Log("Rendering at screen space coordinates (%f, %f) with size (%f, %f)", x_screen_space,
-            y_screen_space, width_screen_space, height_screen_space);
 
     SDL_FRect rect = {x_screen_space - (width_screen_space / 2.0F),
                       y_screen_space - (height_screen_space / 2.0F), width_screen_space,
                       height_screen_space};
+
     SDL_SetRenderDrawColor(renderer, SDL_UNPACK_COLORS(visualizations[i].color));
     SDL_RenderFillRect(renderer, &rect);
   }
