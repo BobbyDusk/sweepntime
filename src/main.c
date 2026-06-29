@@ -66,7 +66,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   InputSystemInit(state->ecs_world);
   PhysicsSystemInit(state->ecs_world);
   RenderSystemInit(state->ecs_world, state->renderer);
-  DebugSystemInit(state->ecs_world);
+  DebugSystemInit(state->ecs_world, state->renderer);
 
   // ecs_entity_t sticky_surface = ecs_entity(state->ecs_world, {.name = "StickySurface"});
   // ecs_set(state->ecs_world, sticky_surface, Size, {200, 200});
@@ -80,11 +80,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   const float WALL_THICKNESS = 0.2F; // in meters
   ObjectPhysicsParams object_physics_params_1 = DefaultObjectPhysicsParams();
-  object_physics_params_1.density = 20.0F;
+  object_physics_params_1.density = 7.0F;
   CreateObject(state->ecs_world, 10, 5, 0.4F, 0.4F, true, ConvertHSLuvToRGBA(8.4, 91.8, 35.2, 255),
                &object_physics_params_1);
   ObjectPhysicsParams object_physics_params_2 = DefaultObjectPhysicsParams();
-  object_physics_params_2.density = 5.0F;
+  object_physics_params_2.density = 1.0F;
   CreateObject(state->ecs_world, 10, 7, 0.4F, 0.4F, true, ConvertHSLuvToRGBA(8.4, 91.8, 58.9, 255),
                &object_physics_params_2);
 
@@ -201,13 +201,6 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_RenderClear(state->renderer);
 
   ecs_progress(state->ecs_world, delta_time);
-
-  /*
-  if (CheckCollision(&state->player, &state->object)) {
-    state->object.x += horizontal_travel;
-    state->object.y += vertical_travel;
-  }
-  */
 
   /* put the newly-cleared rendering on the screen. */
   SDL_RenderPresent(state->renderer);
