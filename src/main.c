@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "components.h"
 #include "config.h"
+#include "hsluv.h"
 #include "object.h"
 #include "systems/debug.h"
 #include "systems/input.h"
@@ -78,9 +79,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   // ecs_set(state->ecs_world, slippery_surface, SurfaceMaterial, {SLIPPERY_FRICTION_COEFFICIENT});
 
   const float WALL_THICKNESS = 0.2F; // in meters
-  ObjectPhysicsParams object_physics_params = DefaultObjectPhysicsParams();
-  object_physics_params.density = 10.0F;
-  CreateObject(state->ecs_world, 10, 5, 0.4F, 0.4F, true, COLOR_RED, &object_physics_params);
+  ObjectPhysicsParams object_physics_params_1 = DefaultObjectPhysicsParams();
+  object_physics_params_1.density = 20.0F;
+  CreateObject(state->ecs_world, 10, 5, 0.4F, 0.4F, true, ConvertHSLuvToRGBA(8.4, 91.8, 35.2, 255),
+               &object_physics_params_1);
+  ObjectPhysicsParams object_physics_params_2 = DefaultObjectPhysicsParams();
+  object_physics_params_2.density = 5.0F;
+  CreateObject(state->ecs_world, 10, 7, 0.4F, 0.4F, true, ConvertHSLuvToRGBA(8.4, 91.8, 58.9, 255),
+               &object_physics_params_2);
+
   ObjectPhysicsParams wall_physics_params = DefaultObjectPhysicsParams();
   wall_physics_params.friction = 0.0F;
   ecs_entity_t top_wall =

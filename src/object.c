@@ -26,6 +26,7 @@ ecs_entity_t CreateObject(ecs_world_t *ecs_world, float x, float y, float width,
   b2BodyDef bodyDef = b2DefaultBodyDef();
   bodyDef.type = (int)movable ? b2_dynamicBody : b2_staticBody;
   bodyDef.position = (b2Vec2){x, y};
+  bodyDef.fixedRotation = true; // Prevent rotation for top-down games
 
   // Crucial for Top-Down games: simulate floor friction using linear damping
   if (movable) {
