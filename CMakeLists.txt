@@ -38,9 +38,18 @@ FetchContent_MakeAvailable(flecs box2d)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.c")
+file(GLOB_RECURSE LIB_SOURCES CONFIGURE_DEPENDS "lib/*.c")
+
+if(LIB_SOURCES)
+    add_library(thirdparty_libs STATIC ${LIB_SOURCES})
+    # Mark 'lib' folder as SYSTEM so headers don't complain when included elsewhere
+    target_include_directories(thirdparty_libs SYSTEM PUBLIC lib)
+endif()
 
 # Your targets
 add_executable(sweepntime ${SOURCES})
+
+target_include_directories(sweepntime SYSTEM PRIVATE src)
 
 # 2. Link your executable against SDL3
 # This automatically handles include paths and linking flags
@@ -52,6 +61,10 @@ target_link_libraries(sweepntime PRIVATE
     flecs::flecs_static
     box2d::box2d
 )
+
+if(TARGET thirdparty_libs)
+    target_link_libraries(sweepntime PRIVATE thirdparty_libs)
+endif()
 
 # 3. Base strict warning options for your specific target
 target_compile_options(sweepntime PRIVATE -Wall -Werror -Wextra -Wpedantic -fcolor-diagnostics)

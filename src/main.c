@@ -1,18 +1,21 @@
+#define CLAY_IMPLEMENTATION // required for the Clay library
 #include "assets.h"
 #include "components.h"
 #include "config.h"
-#include "hsluv.h"
 #include "object.h"
 #include "systems/debug.h"
 #include "systems/input.h"
 #include "systems/physics.h"
 #include "systems/rendering.h"
+#include "systems/ui.h"
+#include "ui_utils.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
 #include <box2d/box2d.h>
 #include <flecs.h>
 #include <float.h>
+#include <hsluv.h>
 
 typedef struct {
   SDL_Window *window;
@@ -56,6 +59,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   state->last_frame_time = SDL_GetTicksNS();
   state->ecs_world = ecs_init();
+  InitUI(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT);
 
   ECS_COMPONENT(state->ecs_world, RigidBody);
   ECS_COMPONENT(state->ecs_world, Visualization);
@@ -67,6 +71,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   PhysicsSystemInit(state->ecs_world);
   RenderSystemInit(state->ecs_world, state->renderer);
   DebugSystemInit(state->ecs_world, state->renderer);
+  UISystemInit(state->ecs_world, state->renderer);
 
   // ecs_entity_t sticky_surface = ecs_entity(state->ecs_world, {.name = "StickySurface"});
   // ecs_set(state->ecs_world, sticky_surface, Size, {200, 200});
