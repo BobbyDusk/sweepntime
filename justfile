@@ -57,7 +57,7 @@ run: build
 
 # Run with AddressSanitizer enabled build
 run-asan: build-asan
-    nixGL ./build/sweepntime
+    LSAN_OPTIONS=suppressions=asan_suppressions.txt nixGL ./build/sweepntime
 
 # Run with arguments
 run-args *ARGS: build

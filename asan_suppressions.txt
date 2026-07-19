@@ -1,0 +1,42 @@
+# fontconfig internal allocations (FcConfig*, FcPattern*, FcValue*, etc.)
+leak:libfontconfig.so*
+leak:FcConfig*
+leak:FcPattern*
+leak:FcValue*
+leak:FcFont*
+
+# pango font map / fontset allocations
+leak:libpangoft2*
+leak:libpangocairo*
+leak:pango_fc_*
+leak:pango_context_get_metrics
+
+# GTK label/box/headerbar measurement internals
+leak:gtk_label_*
+leak:gtk_css_*
+leak:gtk_box_*
+leak:gtk_header_bar_*
+leak:gtk_widget_*
+
+# libdecor window decoration leaks
+leak:libdecor*
+leak:draw_title_bar
+leak:draw_decoration
+leak:frame_get_window_size_for
+
+# cairo font substitution
+leak:_cairo_ft_font_options_substitute
+
+# expat XML parsing (used by fontconfig)
+leak:doContent
+leak:contentProcessor
+leak:doProlog
+leak:prologProcessor
+leak:callProcessor
+leak:XML_ParseBuffer
+
+# glib thread proxy
+leak:g_thread_proxy
+
+# ffi calls
+leak:ffi_call_unix64

@@ -12,6 +12,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <box2d/box2d.h>
 #include <flecs.h>
 #include <float.h>
@@ -24,6 +25,8 @@ typedef struct {
   ecs_world_t *ecs_world;
   ecs_query_t *movable_query;
   ecs_query_t *surfaces_query;
+  TTF_TextEngine *text_engine;
+  TTF_Font **my_fonts;
 } AppState;
 
 /* This function runs once at startup. */
@@ -36,6 +39,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+
+  if (!TTF_Init()) {
+    SDL_Log("Couldn't initialize SDL_ttf: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
@@ -57,9 +65,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     SDL_Log("Warning: Could not enable V-Sync: %s", SDL_GetError());
   }
 
+  if (!AssetsInit()) {
+    SDL_Log("Failed to initialize assets");
+    return SDL_APP_FAILURE;
+  }
+
   state->last_frame_time = SDL_GetTicksNS();
   state->ecs_world = ecs_init();
-  InitUI(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT);
+  state->text_engine = TTF_CreateRendererTextEngine(state->renderer);
+  state->my_fonts = (TTF_Font **)calloc(1, sizeof(TTF_Font *));
+  state->my_fonts[0] = FONT_MAIN; // Font ID 0 and Font ID 1
+  InitUI(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, state->my_fonts);
 
   ECS_COMPONENT(state->ecs_world, RigidBody);
   ECS_COMPONENT(state->ecs_world, Visualization);
@@ -70,8 +86,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   InputSystemInit(state->ecs_world);
   PhysicsSystemInit(state->ecs_world);
   RenderSystemInit(state->ecs_world, state->renderer);
+  UISystemInit(state->ecs_world, state->renderer, state->text_engine, state->my_fonts);
   DebugSystemInit(state->ecs_world, state->renderer);
-  UISystemInit(state->ecs_world, state->renderer);
 
   // ecs_entity_t sticky_surface = ecs_entity(state->ecs_world, {.name = "StickySurface"});
   // ecs_set(state->ecs_world, sticky_surface, Size, {200, 200});
@@ -218,6 +234,11 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   (void)result;
   if (appstate) {
     AppState *state = (AppState *)appstate;
+    TTF_DestroyRendererTextEngine(state->text_engine);
+    AssetsCleanup();
+    free((void *)state->my_fonts);
+
+    TTF_Quit();
     ecs_fini(state->ecs_world); // Takes care of all entities, systems and queries
     SDL_DestroyRenderer(state->renderer);
     SDL_DestroyWindow(state->window);

@@ -1,16 +1,21 @@
 #include "ui.h"
 #include "../lib/clay.h"
 #include "../ui_utils.h"
+#include <clay_renderer.h>
 
-void UISystemInit(ecs_world_t *world, SDL_Renderer *renderer) {
+void UISystemInit(ecs_world_t *world, SDL_Renderer *renderer, TTF_TextEngine *textEngine,
+                  TTF_Font **myFonts) {
+  Clay_SDL3RendererData rendererData = {
+      .renderer = renderer, .textEngine = textEngine, .fonts = myFonts};
+
   ecs_system(world, {.entity = ecs_entity(world, {.name = "UISystem"}),
                      .phase = EcsPostUpdate,
                      .callback = UISystem,
-                     .ctx = renderer});
+                     .ctx = &rendererData});
 }
 
 void UISystem(ecs_iter_t *it) {
-  SDL_Renderer *renderer = (SDL_Renderer *)it->ctx;
+  Clay_SDL3RendererData *rendererData = (Clay_SDL3RendererData *)it->ctx;
 
   // 1. Sync mouse coordinates
   UpdateUIInput();
@@ -51,6 +56,6 @@ void UISystem(ecs_iter_t *it) {
   // 4. Run the layout math engine
   Clay_RenderCommandArray commands = Clay_EndLayout(it->delta_time);
 
-  // 5. Draw the results onto your SDL3 canvas
-  RenderClayToSDL3(renderer, commands);
+  // Send it off to be drawn beautifully with rounded corners, text engines, and scissors!
+  SDL_Clay_RenderClayCommands(rendererData, &commands);
 }

@@ -44,6 +44,7 @@ if(LIB_SOURCES)
     add_library(thirdparty_libs STATIC ${LIB_SOURCES})
     # Mark 'lib' folder as SYSTEM so headers don't complain when included elsewhere
     target_include_directories(thirdparty_libs SYSTEM PUBLIC lib)
+    target_link_libraries(thirdparty_libs PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer SDL3_ttf::SDL3_ttf)
 endif()
 
 # Your targets
@@ -60,6 +61,7 @@ target_link_libraries(sweepntime PRIVATE
     SDL3_ttf::SDL3_ttf
     flecs::flecs_static
     box2d::box2d
+    m
 )
 
 if(TARGET thirdparty_libs)

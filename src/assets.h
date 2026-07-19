@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #define SDL_UNPACK_COLORS(c) (c).r, (c).g, (c).b, (c).a
 
@@ -13,3 +14,8 @@ extern const SDL_Color COLOR_YELLOW;
 extern const SDL_Color COLOR_LIGHT_GRAY;
 extern const SDL_Color COLOR_GRAY;
 extern const SDL_Color COLOR_DARK_GRAY;
+
+extern TTF_Font *FONT_MAIN;
+
+bool AssetsInit();
+void AssetsCleanup();
