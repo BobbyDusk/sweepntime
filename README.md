@@ -4,12 +4,25 @@
 
 ```text
 ├── assets/             # Game assets (sprites, textures, audio, fonts)
+├── lib/                # External libraries directly copied from source. These should rarely be modified.
 ├── platforms/          # Platform-specific build wrappers and launcher code
-├── signatures/         # Generated automatically by CLAssistant bot (Do not touch)
-└── src/                # Core game source code and logic
-    ├── main.c          # Main file
-    ├── systems/        # ECS systems
+├── src/                # Core game source code and logic
+    ├── main.c          # Main file. This is where most of the initialization takes place, where the main game loop resides and where most of the cleanup happens.
+    ├── assets.c        # Asset loading and management. This includes colors, fonts, etc.
+    ├── config.h        # Configuration parameters for the game, including constants that shouldn't be modified.
+    ├── components.h    # Structs for all the ECS components
+    ├── systems/        # Directory for all the ECS systems
     └── systems/        # ECS systems
+
+├── CMakeLists.txt      # CMake build file
+├── LICENSE.md          # License file
+├── README.md           # This file
+├── WORKSPACE.code-workspace # VSCode workspace file
+├── asan_suppressions.txt # AddressSanitizer suppressions file
+├── flake.lock          # Nix flake lock file
+├── flake.nix           # Nix flake file
+└── justfile            # Justfile for building and running the game. This is like the control pannel for this project.
+
 
 ---
 
