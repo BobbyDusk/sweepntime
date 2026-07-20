@@ -1,5 +1,6 @@
 #pragma once
 
+#include "assets.h"
 #include <SDL3/SDL.h>
 #include <box2d/box2d.h>
 
@@ -25,5 +26,5 @@ typedef struct {
 } Input;
 
 typedef struct {
-  SDL_Color color;
+  Color color;
 } Visualization;

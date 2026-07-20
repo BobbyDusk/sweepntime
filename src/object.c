@@ -13,7 +13,7 @@ ObjectPhysicsParams DefaultObjectPhysicsParams(void) {
 }
 
 ecs_entity_t CreateObject(ecs_world_t *ecs_world, float x, float y, float width, float height,
-                          bool movable, SDL_Color color,
+                          bool movable, Color color,
                           const ObjectPhysicsParams *physics_params_ptr) {
   ecs_entity_t e = ecs_new(ecs_world);
   if (!physics_params_ptr) {

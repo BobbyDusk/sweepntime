@@ -4,7 +4,7 @@ set shell := ["bash", "-u", "-c"]
 
 # Default recipe
 default:
-    @just --list
+    @just run-asan
 
 # Build with Debug symbols
 build-debug:

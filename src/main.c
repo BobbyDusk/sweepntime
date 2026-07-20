@@ -3,6 +3,7 @@
 #include "components.h"
 #include "config.h"
 #include "object.h"
+#include "state.h"
 #include "systems/debug.h"
 #include "systems/input.h"
 #include "systems/physics.h"
@@ -16,7 +17,6 @@
 #include <box2d/box2d.h>
 #include <flecs.h>
 #include <float.h>
-#include <hsluv.h>
 
 typedef struct {
   SDL_Window *window;
@@ -27,6 +27,7 @@ typedef struct {
   ecs_query_t *surfaces_query;
   TTF_TextEngine *text_engine;
   TTF_Font **my_fonts;
+  enum GameState *game_state;
 } AppState;
 
 /* This function runs once at startup. */
@@ -70,6 +71,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     return SDL_APP_FAILURE;
   }
 
+  if (!initializeState(state->game_state)) {
+    SDL_Log("Failed to initialize GameState");
+    return SDL_APP_FAILURE;
+  }
+
   state->last_frame_time = SDL_GetTicksNS();
   state->ecs_world = ecs_init();
   state->text_engine = TTF_CreateRendererTextEngine(state->renderer);
@@ -102,39 +108,36 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   const float WALL_THICKNESS = 0.2F; // in meters
   ObjectPhysicsParams object_physics_params_1 = DefaultObjectPhysicsParams();
   object_physics_params_1.density = 7.0F;
-  CreateObject(state->ecs_world, 10, 5, 0.4F, 0.4F, true, ConvertHSLuvToRGBA(8.4, 91.8, 35.2, 255),
-               &object_physics_params_1);
+  CreateObject(state->ecs_world, 10, 5, 0.4F, 0.4F, true, NEG_ACCENT_300, &object_physics_params_1);
   ObjectPhysicsParams object_physics_params_2 = DefaultObjectPhysicsParams();
   object_physics_params_2.density = 1.0F;
-  CreateObject(state->ecs_world, 10, 7, 0.4F, 0.4F, true, ConvertHSLuvToRGBA(8.4, 91.8, 58.9, 255),
-               &object_physics_params_2);
+  CreateObject(state->ecs_world, 10, 7, 0.4F, 0.4F, true, NEG_ACCENT_600, &object_physics_params_2);
 
   ObjectPhysicsParams wall_physics_params = DefaultObjectPhysicsParams();
   wall_physics_params.friction = 0.0F;
-  ecs_entity_t top_wall =
-      CreateObject(state->ecs_world, BASE_SCREEN_WIDTH / PIXELS_PER_METER / 2, WALL_THICKNESS / 2,
-                   BASE_SCREEN_WIDTH / PIXELS_PER_METER, WALL_THICKNESS, false, COLOR_DARK_GRAY,
-                   &wall_physics_params);
+  ecs_entity_t top_wall = CreateObject(state->ecs_world, BASE_SCREEN_WIDTH / PIXELS_PER_METER / 2,
+                                       WALL_THICKNESS / 2, BASE_SCREEN_WIDTH / PIXELS_PER_METER,
+                                       WALL_THICKNESS, false, COLOR_GRAY_800, &wall_physics_params);
   top_wall = ecs_set_name(state->ecs_world, top_wall, "TopWall");
   ecs_entity_t bottom_wall =
       CreateObject(state->ecs_world, BASE_SCREEN_WIDTH / PIXELS_PER_METER / 2,
                    (BASE_SCREEN_HEIGHT / PIXELS_PER_METER) - (WALL_THICKNESS / 2),
-                   BASE_SCREEN_WIDTH / PIXELS_PER_METER, WALL_THICKNESS, false, COLOR_DARK_GRAY,
+                   BASE_SCREEN_WIDTH / PIXELS_PER_METER, WALL_THICKNESS, false, COLOR_GRAY_800,
                    &wall_physics_params);
   bottom_wall = ecs_set_name(state->ecs_world, bottom_wall, "BottomWall");
   ecs_entity_t left_wall =
       CreateObject(state->ecs_world, WALL_THICKNESS / 2, BASE_SCREEN_HEIGHT / PIXELS_PER_METER / 2,
-                   WALL_THICKNESS, BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_DARK_GRAY,
+                   WALL_THICKNESS, BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_GRAY_800,
                    &wall_physics_params);
   left_wall = ecs_set_name(state->ecs_world, left_wall, "LeftWall");
   ecs_entity_t right_wall = CreateObject(
       state->ecs_world, (BASE_SCREEN_WIDTH / PIXELS_PER_METER) - (WALL_THICKNESS / 2),
       BASE_SCREEN_HEIGHT / PIXELS_PER_METER / 2, WALL_THICKNESS,
-      BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_DARK_GRAY, &wall_physics_params);
+      BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_GRAY_800, &wall_physics_params);
   right_wall = ecs_set_name(state->ecs_world, right_wall, "RightWall");
 
   ecs_entity_t player =
-      CreateObject(state->ecs_world, 2, 2, PLAYER_WIDTH, PLAYER_HEIGHT, true, COLOR_GREEN, NULL);
+      CreateObject(state->ecs_world, 2, 2, PLAYER_WIDTH, PLAYER_HEIGHT, true, POS_ACCENT_700, NULL);
   ecs_set_name(state->ecs_world, player, "Player");
   ecs_set(state->ecs_world, player, Input, {false, false, false, false});
 
@@ -216,7 +219,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   float delta_time = (now - state->last_frame_time) / 1000000000.0F;
   state->last_frame_time = now;
 
-  SDL_SetRenderDrawColor(state->renderer, SDL_UNPACK_COLORS(COLOR_GRAY));
+  SDL_SetRenderDrawColor(state->renderer, SDL_COLOR(COLOR_GRAY_700));
 
   /* clear the window to the draw color. */
   SDL_RenderClear(state->renderer);
@@ -234,6 +237,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   (void)result;
   if (appstate) {
     AppState *state = (AppState *)appstate;
+    destroyState();
     TTF_DestroyRendererTextEngine(state->text_engine);
     AssetsCleanup();
     free((void *)state->my_fonts);

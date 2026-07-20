@@ -34,7 +34,7 @@ void RenderSystem(ecs_iter_t *it) {
                       y_screen_space - (height_screen_space / 2.0F), width_screen_space,
                       height_screen_space};
 
-    SDL_SetRenderDrawColor(renderer, SDL_UNPACK_COLORS(visualizations[i].color));
+    SDL_SetRenderDrawColor(renderer, SDL_COLOR(visualizations[i].color));
     SDL_RenderFillRect(renderer, &rect);
   }
 }

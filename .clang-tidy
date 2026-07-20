@@ -7,6 +7,7 @@ Checks: >-
   readability-*,
   performance-*,
   -modernize-*,
-  -readability-magic-numbers
+  -readability-magic-numbers,
+  -readability-identifier-length
 
 HeaderFilterRegex: '^((?!third_party).)*$'
