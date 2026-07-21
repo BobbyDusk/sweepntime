@@ -20,6 +20,7 @@ compile_commands.json
 # IDE
 .clangd/
 .cache/
+.pi
 
 # OS
 .DS_Store

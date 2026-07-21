@@ -84,7 +84,10 @@ extern const Color EVIL_COLOR_800;
 extern const Color EVIL_COLOR_900;
 extern const Color EVIL_COLOR_950;
 
+extern TTF_Font *FONT_DEBUG;
+#define FONT_DEBUG_ID 0
 extern TTF_Font *FONT_MAIN;
+#define FONT_MAIN_ID 1
 
-bool AssetsInit();
+TTF_Font **AssetsInit(void);
 void AssetsCleanup();

@@ -1,4 +1,5 @@
 #include "assets.h"
+#include <SDL3_ttf/SDL_ttf.h>
 
 const Color COLOR_WHITE = {255, 255, 255, 255};
 const Color COLOR_BLACK = {0, 0, 0, 255};
@@ -65,18 +66,34 @@ const Color EVIL_COLOR_900 = HEX_TO_COLOR(0x660507);
 const Color EVIL_COLOR_950 = HEX_TO_COLOR(0x370102);
 
 TTF_Font *FONT_MAIN = NULL;
+TTF_Font *FONT_DEBUG = NULL;
 
-bool AssetsInit() {
+TTF_Font **AssetsInit(void) {
   // This runs at runtime, so it is perfectly legal!
   FONT_MAIN = TTF_OpenFont("assets/fonts/Mansalva.ttf", 24.0F);
   if (!FONT_MAIN) {
     SDL_Log("Failed to load main font: %s", SDL_GetError());
-    return false;
+    return NULL;
   }
-  return true;
+
+  FONT_DEBUG = TTF_OpenFont("assets/fonts/FiraCode-Light.ttf", 24.0F);
+  if (!FONT_DEBUG) {
+    SDL_Log("Failed to load debug font: %s", SDL_GetError());
+    return NULL;
+  }
+
+  TTF_Font **fonts = (TTF_Font **)calloc(2, sizeof(TTF_Font *));
+  fonts[0] = FONT_DEBUG;
+  fonts[1] = FONT_MAIN;
+  return fonts;
 }
 
 void AssetsCleanup() {
+  if (FONT_DEBUG) {
+    TTF_CloseFont(FONT_DEBUG);
+    FONT_DEBUG = NULL;
+  }
+
   if (FONT_MAIN) {
     TTF_CloseFont(FONT_MAIN);
     FONT_MAIN = NULL;

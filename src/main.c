@@ -1,3 +1,4 @@
+#include <clay_renderer.h>
 #define CLAY_IMPLEMENTATION // required for the Clay library
 #include "assets.h"
 #include "components.h"
@@ -66,7 +67,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     SDL_Log("Warning: Could not enable V-Sync: %s", SDL_GetError());
   }
 
-  if (!AssetsInit()) {
+  state->my_fonts = AssetsInit();
+  if (!state->my_fonts) {
     SDL_Log("Failed to initialize assets");
     return SDL_APP_FAILURE;
   }
@@ -79,8 +81,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   state->last_frame_time = SDL_GetTicksNS();
   state->ecs_world = ecs_init();
   state->text_engine = TTF_CreateRendererTextEngine(state->renderer);
-  state->my_fonts = (TTF_Font **)calloc(1, sizeof(TTF_Font *));
-  state->my_fonts[0] = FONT_MAIN; // Font ID 0 and Font ID 1
   InitUI(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, state->my_fonts);
 
   ECS_COMPONENT(state->ecs_world, RigidBody);
@@ -159,6 +159,12 @@ void ToggleEngineVSync(SDL_Renderer *renderer) {
   }
 }
 
+void ToggleClayDebugMode() {
+  static bool debug_mode_enabled = false;
+  debug_mode_enabled = !debug_mode_enabled;
+  Clay_SetDebugModeEnabled(debug_mode_enabled);
+}
+
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   AppState *state = (AppState *)appstate;
@@ -196,6 +202,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
   if (event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_1) {
     ToggleEngineVSync(state->renderer);
+  } else if (event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_2) {
+    ToggleClayDebugMode();
   }
 
   if (event->type == SDL_EVENT_QUIT) {

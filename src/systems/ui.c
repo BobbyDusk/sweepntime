@@ -4,10 +4,12 @@
 #include "ui/main_menu.h"
 #include <clay_renderer.h>
 
-void UISystemInit(ecs_world_t *world, SDL_Renderer *renderer, TTF_TextEngine *textEngine,
-                  TTF_Font **myFonts) {
-  Clay_SDL3RendererData rendererData = {
-      .renderer = renderer, .textEngine = textEngine, .fonts = myFonts};
+void UISystemInit(ecs_world_t *world, SDL_Renderer *renderer, TTF_TextEngine *text_engine,
+                  TTF_Font **my_fonts) {
+  static Clay_SDL3RendererData rendererData;
+  rendererData.renderer = renderer;
+  rendererData.textEngine = text_engine;
+  rendererData.fonts = my_fonts;
 
   ecs_system(world, {.entity = ecs_entity(world, {.name = "UISystem"}),
                      .phase = EcsPostUpdate,
