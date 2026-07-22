@@ -11,4 +11,4 @@ Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig *confi
 
 void InitUI(int window_width, int window_height, TTF_Font **fontsArray);
 
-void UpdateUIInput();
+void UpdateUIInput(SDL_Renderer *renderer);

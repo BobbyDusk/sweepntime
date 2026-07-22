@@ -8,6 +8,20 @@ Checks: >-
   performance-*,
   -modernize-*,
   -readability-magic-numbers,
-  -readability-identifier-length
+  -readability-identifier-length,
+  readability-identifier-naming
 
-HeaderFilterRegex: '^((?!third_party).)*$'
+HeaderFilterRegex: '^((?!third_party|lib).)*$'
+
+CheckOptions:
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.FunctionCase: CamelCase
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.EnumConstantCase: UPPER_CASE
+  readability-identifier-naming.GlobalConstantCase: UPPER_CASE
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.TypedefCase: CamelCase
+

@@ -1,4 +1,5 @@
 #include "ui_utils.h"
+#include "SDL3/SDL_render.h"
 #include "clay.h"
 #include <SDL3/SDL.h>
 #include <clay_renderer.h> // Include your new renderer header
@@ -48,11 +49,17 @@ void InitUI(int window_width, int window_height, TTF_Font **fontsArray) {
   Clay_SetMeasureTextFunction(MeasureText, 0);
 }
 
-void UpdateUIInput() {
-  float mouse_x;
-  float mouse_y;
-  SDL_MouseButtonFlags mouse_flags = SDL_GetMouseState(&mouse_x, &mouse_y);
+void UpdateUIInput(SDL_Renderer *renderer) {
+  float cursor_window_x = 0.0F;
+  float cursor_window_y = 0.0F;
+  SDL_MouseButtonFlags mouse_flags = SDL_GetMouseState(&cursor_window_x, &cursor_window_y);
+
+  float cursor_canvas_x = 0.0F;
+  float cursor_canvas_y = 0.0F;
+  SDL_RenderCoordinatesFromWindow(renderer, cursor_window_x, cursor_window_y, &cursor_window_x,
+                                  &cursor_window_y);
+
   bool is_left_click_down = (mouse_flags & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) != 0;
 
-  Clay_SetPointerState((Clay_Vector2){mouse_x, mouse_y}, is_left_click_down);
+  Clay_SetPointerState((Clay_Vector2){cursor_canvas_x, cursor_canvas_y}, is_left_click_down);
 }

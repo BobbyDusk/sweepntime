@@ -6,11 +6,7 @@
 
 #define SDL_COLOR(c) (c).r, (c).g, (c).b, (c).a
 #define CLAY_COLOR(c) ((Clay_Color){(float)(c).r, (float)(c).g, (float)(c).b, (float)(c).a})
-#define HEX_TO_COLOR(hex)                                                                          \
-  ((Color){.r = (float)(((hex) >> 16) & 0xFF),                                                     \
-           .g = (float)(((hex) >> 8) & 0xFF),                                                      \
-           .b = (float)((hex) & 0xFF),                                                             \
-           .a = 255.0f})
+#define HEX_TO_COLOR(hex) ((Color){.r = (float)(((hex) >> 16) & 0xFF), .g = (float)(((hex) >> 8) & 0xFF), .b = (float)((hex) & 0xFF), .a = 255.0f})
 
 typedef struct {
   Uint8 r;
