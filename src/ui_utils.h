@@ -5,10 +5,10 @@
 #include <clay.h>
 
 // A basic error handler Clay uses if you provide bad layout constraints
-void HandleClayError(Clay_ErrorData errorData);
+void HandleClayError(Clay_ErrorData error_data);
 
-Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig *config, void *userData);
+Clay_Dimensions MeasureText(Clay_StringSlice text, Clay_TextElementConfig *config, void *user_data);
 
-void InitUI(int window_width, int window_height, TTF_Font **fontsArray);
+void InitUI(int window_width, int window_height, TTF_Font **fonts_array);
 
 void UpdateUIInput(SDL_Renderer *renderer);
