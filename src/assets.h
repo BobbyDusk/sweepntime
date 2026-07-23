@@ -85,5 +85,5 @@ extern TTF_Font *FONT_DEBUG;
 extern TTF_Font *FONT_MAIN;
 #define FONT_MAIN_ID 1
 
-TTF_Font **AssetsInit(void);
+bool AssetsInit(TTF_Font **my_fonts);
 void AssetsCleanup();

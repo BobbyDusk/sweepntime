@@ -27,7 +27,7 @@ typedef struct {
   ecs_query_t *movable_query;
   ecs_query_t *surfaces_query;
   TTF_TextEngine *text_engine;
-  TTF_Font **my_fonts;
+  TTF_Font *my_fonts;
   enum GameState *game_state;
 } AppState;
 
@@ -67,8 +67,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     SDL_Log("Warning: Could not enable V-Sync: %s", SDL_GetError());
   }
 
-  state->my_fonts = AssetsInit();
-  if (!state->my_fonts) {
+  if (!AssetsInit(&state->my_fonts)) {
     SDL_Log("Failed to initialize assets");
     return SDL_APP_FAILURE;
   }
@@ -81,18 +80,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   state->last_frame_time = SDL_GetTicksNS();
   state->ecs_world = ecs_init();
   state->text_engine = TTF_CreateRendererTextEngine(state->renderer);
-  InitUI(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, state->my_fonts);
+  InitUI(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, &state->my_fonts);
 
   ECS_COMPONENT(state->ecs_world, RigidBody);
   ECS_COMPONENT(state->ecs_world, Visualization);
   ECS_COMPONENT(state->ecs_world, Input);
   ECS_COMPONENT(state->ecs_world, SurfaceMaterial);
-  ECS_TAG(state->ecs_world, IsPlayer);
+  ECS_TAG(state->ecs_world, is_player);
 
   InputSystemInit(state->ecs_world);
   PhysicsSystemInit(state->ecs_world);
   RenderSystemInit(state->ecs_world, state->renderer);
-  UISystemInit(state->ecs_world, state->renderer, state->text_engine, state->my_fonts);
+  UISystemInit(state->ecs_world, state->renderer, state->text_engine, &state->my_fonts);
   DebugSystemInit(state->ecs_world, state->renderer);
 
   // ecs_entity_t sticky_surface = ecs_entity(state->ecs_world, {.name = "StickySurface"});
@@ -105,7 +104,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   // ecs_set(state->ecs_world, slippery_surface, Visualization, {COLOR_YELLOW});
   // ecs_set(state->ecs_world, slippery_surface, SurfaceMaterial, {SLIPPERY_FRICTION_COEFFICIENT});
 
-  const float WALL_THICKNESS = 0.2F; // in meters
+  const float wall_thickness = 0.2F; // in meters
   ObjectPhysicsParams object_physics_params_1 = DefaultObjectPhysicsParams();
   object_physics_params_1.density = 7.0F;
   CreateObject(state->ecs_world, 10, 5, 0.4F, 0.4F, true, NEG_ACCENT_300, &object_physics_params_1);
@@ -116,23 +115,23 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   ObjectPhysicsParams wall_physics_params = DefaultObjectPhysicsParams();
   wall_physics_params.friction = 0.0F;
   ecs_entity_t top_wall = CreateObject(state->ecs_world, BASE_SCREEN_WIDTH / PIXELS_PER_METER / 2,
-                                       WALL_THICKNESS / 2, BASE_SCREEN_WIDTH / PIXELS_PER_METER,
-                                       WALL_THICKNESS, false, COLOR_GRAY_800, &wall_physics_params);
+                                       wall_thickness / 2, BASE_SCREEN_WIDTH / PIXELS_PER_METER,
+                                       wall_thickness, false, COLOR_GRAY_800, &wall_physics_params);
   top_wall = ecs_set_name(state->ecs_world, top_wall, "TopWall");
   ecs_entity_t bottom_wall =
       CreateObject(state->ecs_world, BASE_SCREEN_WIDTH / PIXELS_PER_METER / 2,
-                   (BASE_SCREEN_HEIGHT / PIXELS_PER_METER) - (WALL_THICKNESS / 2),
-                   BASE_SCREEN_WIDTH / PIXELS_PER_METER, WALL_THICKNESS, false, COLOR_GRAY_800,
+                   (BASE_SCREEN_HEIGHT / PIXELS_PER_METER) - (wall_thickness / 2),
+                   BASE_SCREEN_WIDTH / PIXELS_PER_METER, wall_thickness, false, COLOR_GRAY_800,
                    &wall_physics_params);
   bottom_wall = ecs_set_name(state->ecs_world, bottom_wall, "BottomWall");
   ecs_entity_t left_wall =
-      CreateObject(state->ecs_world, WALL_THICKNESS / 2, BASE_SCREEN_HEIGHT / PIXELS_PER_METER / 2,
-                   WALL_THICKNESS, BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_GRAY_800,
+      CreateObject(state->ecs_world, wall_thickness / 2, BASE_SCREEN_HEIGHT / PIXELS_PER_METER / 2,
+                   wall_thickness, BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_GRAY_800,
                    &wall_physics_params);
   left_wall = ecs_set_name(state->ecs_world, left_wall, "LeftWall");
   ecs_entity_t right_wall = CreateObject(
-      state->ecs_world, (BASE_SCREEN_WIDTH / PIXELS_PER_METER) - (WALL_THICKNESS / 2),
-      BASE_SCREEN_HEIGHT / PIXELS_PER_METER / 2, WALL_THICKNESS,
+      state->ecs_world, (BASE_SCREEN_WIDTH / PIXELS_PER_METER) - (wall_thickness / 2),
+      BASE_SCREEN_HEIGHT / PIXELS_PER_METER / 2, wall_thickness,
       BASE_SCREEN_HEIGHT / PIXELS_PER_METER, false, COLOR_GRAY_800, &wall_physics_params);
   right_wall = ecs_set_name(state->ecs_world, right_wall, "RightWall");
 
@@ -195,6 +194,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
     case SDLK_RIGHT:
       input->right = is_down;
       break;
+    default:
+      break;
     }
 
     ecs_modified(state->ecs_world, player, Input);
@@ -248,13 +249,13 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
     destroyState();
     TTF_DestroyRendererTextEngine(state->text_engine);
     AssetsCleanup();
-    free((void *)state->my_fonts);
 
     TTF_Quit();
     ecs_fini(state->ecs_world); // Takes care of all entities, systems and queries
     SDL_DestroyRenderer(state->renderer);
     SDL_DestroyWindow(state->window);
     SDL_free(state);
+    state = NULL;
   }
   /* SDL will clean up the window/renderer for us. */
 }

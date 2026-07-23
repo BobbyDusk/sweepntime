@@ -33,7 +33,7 @@ void MainMenuUi() {
         .childGap = 16,
         .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}
       },
-      .backgroundColor = Clay_Hovered() ? CLAY_COLOR(POS_ACCENT_400) : CLAY_COLOR(POS_ACCENT_800)
+      .backgroundColor = Clay_Hovered() ? CLAY_COLOR(POS_ACCENT_600) : CLAY_COLOR(POS_ACCENT_800)
       }
     ) {
       CLAY_TEXT(CLAY_STRING("Play"), {
@@ -53,7 +53,7 @@ void MainMenuUi() {
          .childGap = 16, 
          .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}
        }, 
-      .backgroundColor = CLAY_COLOR(EVIL_COLOR_800)
+      .backgroundColor = Clay_Hovered() ? CLAY_COLOR(EVIL_COLOR_700) : CLAY_COLOR(EVIL_COLOR_800)
       }
     ) {
       CLAY_TEXT(CLAY_STRING("Quit"), {

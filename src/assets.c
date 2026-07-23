@@ -68,24 +68,27 @@ const Color EVIL_COLOR_950 = HEX_TO_COLOR(0x370102);
 TTF_Font *FONT_MAIN = NULL;
 TTF_Font *FONT_DEBUG = NULL;
 
-TTF_Font **AssetsInit(void) {
+static TTF_Font *g_fonts = NULL;
+
+bool AssetsInit(TTF_Font **my_fonts) {
   // This runs at runtime, so it is perfectly legal!
   FONT_MAIN = TTF_OpenFont("assets/fonts/Mansalva.ttf", 24.0F);
   if (!FONT_MAIN) {
     SDL_Log("Failed to load main font: %s", SDL_GetError());
-    return NULL;
+    return false;
   }
 
   FONT_DEBUG = TTF_OpenFont("assets/fonts/FiraCode-Light.ttf", 24.0F);
   if (!FONT_DEBUG) {
     SDL_Log("Failed to load debug font: %s", SDL_GetError());
-    return NULL;
+    return false;
   }
 
-  TTF_Font **fonts = (TTF_Font **)calloc(2, sizeof(TTF_Font *));
-  fonts[0] = FONT_DEBUG;
-  fonts[1] = FONT_MAIN;
-  return fonts;
+  *my_fonts = calloc(2, sizeof(TTF_Font *));
+  g_fonts = *my_fonts;
+  my_fonts[0] = FONT_DEBUG;
+  my_fonts[1] = FONT_MAIN;
+  return true;
 }
 
 void AssetsCleanup() {
@@ -98,4 +101,7 @@ void AssetsCleanup() {
     TTF_CloseFont(FONT_MAIN);
     FONT_MAIN = NULL;
   }
+
+  free(g_fonts);
+  g_fonts = NULL;
 }
