@@ -27,6 +27,5 @@ void UISystem(ecs_iter_t *it) {
   // 4. Run the layout math engine
   Clay_RenderCommandArray commands = Clay_EndLayout(it->delta_time);
 
-  // Send it off to be drawn beautifully with rounded corners, text engines, and scissors!
   SDL_Clay_RenderClayCommands(renderer_data, &commands);
 }

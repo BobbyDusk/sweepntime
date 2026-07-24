@@ -59,6 +59,11 @@ run: build
 run-asan: build-asan
     LSAN_OPTIONS=suppressions=asan_suppressions.txt nixGL ./build/sweepntime
 
+# Run with Valgrind memory checking (slow, for leak detection)
+run-valgrind: build-debug
+    nixGL valgrind --leak-check=full --track-origins=yes --suppressions=valgrind_suppressions.txt ./build/sweepntime
+
+
 # Run with arguments
 run-args *ARGS: build
     nixGL ./build/sweepntime {{ARGS}}

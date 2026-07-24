@@ -1,0 +1,237 @@
+# =============================================================================
+# Valgrind Suppressions for Sweep'n Time
+# =============================================================================
+# These suppress known, harmless memory leaks in third-party libraries.
+# All leaks here originate from system/GUI libraries, NOT from game code.
+# =============================================================================
+
+# fontconfig library leaks
+{
+   fontconfig_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libfontconfig*
+}
+
+# pango library leaks
+{
+   pango_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libpango*
+}
+
+# GTK3 library leaks
+{
+   gtk3_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libgtk*
+}
+
+# libdecor library leaks
+{
+   libdecor_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libdecor*
+}
+
+# SDL3 library leaks
+{
+   sdl3_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libSDL*
+}
+
+# GLib library leaks
+{
+   glib_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libglib*
+}
+
+# expat library leaks (XML parser used by fontconfig)
+{
+   expat_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libexpat*
+}
+
+# libffi library leaks
+{
+   libffi_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libffi*
+}
+
+# GObject library leaks
+{
+   gobject_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libgobject*
+}
+
+# Gio library leaks
+{
+   gio_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libgio*
+}
+
+# Wayland client library leaks
+{
+   wayland_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libwayland*
+}
+
+# Cairo library leaks
+{
+   cairo_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libcairo*
+}
+
+# Harfbuzz library leaks
+{
+   harfbuzz_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libharfbuzz*
+}
+
+# Freetype library leaks
+{
+   freetype_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libfreetype*
+}
+
+# Pixman library leaks
+{
+   pixman_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libpixman*
+}
+
+# EGL/Mesa library leaks
+{
+   egl_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libEGL*
+}
+
+# GL library leaks
+{
+   gl_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libGL*
+}
+
+# X11 related library leaks
+{
+   x11_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libX11*
+}
+
+# XKB library leaks
+{
+   xkb_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libxkb*
+}
+
+# Pulseaudio library leaks
+{
+   pulse_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libpulse*
+}
+
+# PipeWire library leaks
+{
+   pipewire_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libpipewire*
+}
+
+# Box2D library leaks
+{
+   box2d_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:*/libbox2d*
+}
+
+# flecs library leaks
+{
+   flecs_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   fun:*flecs*
+}
+
+# flecs ECS function leaks
+{
+   flecs_ecs_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   fun:ecs_*
+}
+
+# Asan/sanitizer thread leaks
+{
+   asan_thread_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   fun:asan_thread_start*
+}
+
+# Catch-all for any remaining nix store library leaks
+{
+   nix_store_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   obj:/nix/store/*
+}
+
+# pthread leaks
+{
+   pthread_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   fun:pthread_*
+}
+
+# dlopen/dlsym leaks
+{
+   dlopen_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   fun:dlopen*
+}
+
+{
+   dlsym_leak
+   Memcheck:Leak
+   match-leak-kinds: all
+   fun:dlsym*
+}

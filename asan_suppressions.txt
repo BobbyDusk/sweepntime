@@ -1,15 +1,33 @@
+# =============================================================================
+# ASan/LSan Suppressions for Sweep'n Time
+# =============================================================================
+# These suppress known, harmless memory leaks in third-party libraries.
+# Use with: LSAN_OPTIONS="suppressions=asan_suppressions.txt" ./build/sweepntime
+# =============================================================================
+
 # fontconfig internal allocations (FcConfig*, FcPattern*, FcValue*, etc.)
 leak:libfontconfig.so*
 leak:FcConfig*
 leak:FcPattern*
 leak:FcValue*
 leak:FcFont*
+leak:FcRange*
+leak:FcLang*
+leak:FcInit*
+leak:FcEndElement
+leak:FcStartElement
+leak:_FcConfigParse
 
 # pango font map / fontset allocations
 leak:libpangoft2*
 leak:libpangocairo*
 leak:pango_fc_*
 leak:pango_context_get_metrics
+leak:pango_cairo_*
+leak:pango_font_map_*
+leak:pango_fontset_*
+leak:ensure_families
+leak:fc_thread_func
 
 # GTK label/box/headerbar measurement internals
 leak:gtk_label_*
@@ -17,6 +35,9 @@ leak:gtk_css_*
 leak:gtk_box_*
 leak:gtk_header_bar_*
 leak:gtk_widget_*
+leak:gtk_window_*
+leak:gtk_container_*
+leak:gtk_style_*
 
 # libdecor window decoration leaks
 leak:libdecor*
@@ -26,6 +47,7 @@ leak:frame_get_window_size_for
 
 # cairo font substitution
 leak:_cairo_ft_font_options_substitute
+leak:libcairo*
 
 # expat XML parsing (used by fontconfig)
 leak:doContent
@@ -37,6 +59,42 @@ leak:XML_ParseBuffer
 
 # glib thread proxy
 leak:g_thread_proxy
+leak:g_malloc*
+leak:g_slice_*
+leak:g_realloc*
 
 # ffi calls
 leak:ffi_call_unix64
+leak:ffi_*
+
+# GLib/GObject/Gio
+leak:libglib*
+leak:libgobject*
+leak:libgio*
+
+# Wayland
+leak:libwayland*
+leak:wl_*
+
+# Harfbuzz/Freetype
+leak:libharfbuzz*
+leak:libfreetype*
+
+# SDL3
+leak:libSDL*
+leak:decoration_*
+leak:xdg_surface_*
+
+# Box2D
+leak:libbox2d*
+leak:b2_*
+
+# flecs
+leak:*flecs*
+leak:ecs_*
+
+# Nix store libraries
+leak:/nix/store/*
+
+# pthread
+leak:pthread_*
