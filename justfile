@@ -6,34 +6,48 @@ set shell := ["bash", "-u", "-c"]
 default:
     @just run-asan
 
-# Build with Debug symbols
+# Build directories
+BUILD_DEBUG := "build/debug"
+BUILD_ASAN := "build/asan"
+BUILD_RELEASE := "build/release"
+
+# Build with Debug symbols (for valgrind, lldb)
 build-debug:
-    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    cmake --build build
-    ln -sf build/compile_commands.json .
+    cmake -B {{BUILD_DEBUG}} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    cmake --build {{BUILD_DEBUG}}
+    ln -sf {{BUILD_DEBUG}}/compile_commands.json .
 
-# Build with Debug symbols and AddressSanitizer enabled
+# Build with AddressSanitizer enabled
 build-asan:
-    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_ASAN=ON
-    cmake --build build
-    ln -sf build/compile_commands.json .
+    cmake -B {{BUILD_ASAN}} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_ASAN=ON
+    cmake --build {{BUILD_ASAN}}
+    ln -sf {{BUILD_ASAN}}/compile_commands.json .
 
-# Build optimized Release
+# Build optimized Release (no debug symbols, no sanitizers)
 build-release:
-    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-    cmake --build build
+    cmake -B {{BUILD_RELEASE}} -G Ninja -DCMAKE_BUILD_TYPE=Release
+    cmake --build {{BUILD_RELEASE}}
 
-# Quick recompile (assumes cmake already configured)
-build:
-    cmake --build build
+# Quick recompile shortcuts
+build-quick-debug:
+    cmake --build {{BUILD_DEBUG}}
 
-# Clean build directory
+build-quick-asan:
+    cmake --build {{BUILD_ASAN}}
+
+build-quick-release:
+    cmake --build {{BUILD_RELEASE}}
+
+# Clean all build directories
 clean:
     rm -rf build/
     rm -f compile_commands.json
 
-# Full clean rebuild
-rebuild: clean build-debug
+rebuild-debug: clean build-quick-debug
+
+rebuild-asan: clean build-quick-asan
+
+rebuild-release: clean build-quick-release
 
 # Format all source files
 fmt:
@@ -41,42 +55,36 @@ fmt:
 
 # Run clang-tidy linter
 lint:
-    clang-tidy src/*.c -- -I./include -I./build
+    clang-tidy src/*.c -- -I./include -I./build/debug
 
 # Run linter with fixes
 lint-fix:
-    clang-tidy src/*.c --fix -- -I./include -I./build
+    clang-tidy src/*.c --fix -- -I./include -I./build/debug
 
 # Generate compile_commands.json symlink
 commands:
-    ln -sf build/compile_commands.json .
+    ln -sf build/debug/compile_commands.json .
 
-# Run the compiled executable
-run: build
-    nixGL ./build/sweepntime
+# Run the compiled executable (default: ASan)
+run: run-asan
 
 # Run with AddressSanitizer enabled build
 run-asan: build-asan
-    LSAN_OPTIONS=suppressions=asan_suppressions.txt nixGL ./build/sweepntime
+    LSAN_OPTIONS=suppressions=asan_suppressions.txt nixGL ./build/asan/sweepntime
 
 # Run with Valgrind memory checking (slow, for leak detection)
 run-valgrind: build-debug
-    nixGL valgrind --leak-check=full --track-origins=yes --suppressions=valgrind_suppressions.txt ./build/sweepntime
+    nixGL valgrind --leak-check=full --track-origins=yes --suppressions=valgrind_suppressions.txt ./build/debug/sweepntime
 
+# Run debug build (no sanitizers)
+run-debug: build-debug
+    nixGL ./build/debug/sweepntime
 
-# Run with arguments
-run-args *ARGS: build
-    nixGL ./build/sweepntime {{ARGS}}
+# Run release build (for performance testing or distribution)
+run-release: build-release
+    nixGL ./build/release/sweepntime
 
 # Debug with lldb
 debug: build-debug
-    nixGL lldb ./build/sweepntime
+    nixGL lldb ./build/debug/sweepntime
 
-# Set up dev environment (first time setup)
-setup:
-    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    ln -sf build/compile_commands.json .
-    echo "✓ Development environment ready!"
-    echo "  Run 'just build' to compile"
-    echo "  Run 'just run' to execute"
-    echo "  Run 'just debug' to debug"
